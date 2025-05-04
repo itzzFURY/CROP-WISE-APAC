@@ -1,0 +1,99 @@
+<div class="farm-form-container">
+  <h2>Farm Details</h2>
+  <p>Please provide information about your farm</p>
+
+  <div *ngIf="submitSuccess" class="alert success">
+    Farm data saved successfully!
+  </div>
+
+  <div *ngIf="submitError" class="alert error">
+    {{ errorMessage }}
+  </div>
+
+  <form [formGroup]="farmForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="farmName">Farm Name</label>
+      <input 
+        type="text" 
+        id="farmName" 
+        formControlName="farmName" 
+        placeholder="Enter farm name"
+      >
+      <div *ngIf="farmForm.get('farmName')?.invalid && farmForm.get('farmName')?.touched" class="error-message">
+        Farm name is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="farmSize">Farm Size (acres)</label>
+      <input 
+        type="number" 
+        id="farmSize" 
+        formControlName="farmSize" 
+        placeholder="Enter farm size in acres"
+        step="0.1"
+        min="0.1"
+      >
+      <div *ngIf="farmForm.get('farmSize')?.invalid && farmForm.get('farmSize')?.touched" class="error-message">
+        Valid farm size is required (minimum 0.1 acres)
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="location">Location</label>
+      <div class="location-input-group">
+        <input 
+          type="text" 
+          id="location" 
+          formControlName="location" 
+          placeholder="Enter location or use button"
+        >
+        <button type="button" class="location-btn" (click)="getUserLocation()">
+          Use My Location
+        </button>
+      </div>
+      <div *ngIf="farmForm.get('location')?.invalid && farmForm.get('location')?.touched" class="error-message">
+        Location is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="soilType">Soil Type</label>
+      <select id="soilType" formControlName="soilType">
+        <option value="" disabled>Select soil type</option>
+        <option *ngFor="let type of soilTypes" [value]="type">{{ type }}</option>
+      </select>
+      <div *ngIf="farmForm.get('soilType')?.invalid && farmForm.get('soilType')?.touched" class="error-message">
+        Soil type is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="yieldPerformance">Yield Performance</label>
+      <textarea 
+        id="yieldPerformance" 
+        formControlName="yieldPerformance" 
+        placeholder="Enter yield performance details"
+        rows="3"
+      ></textarea>
+      <div *ngIf="farmForm.get('yieldPerformance')?.invalid && farmForm.get('yieldPerformance')?.touched" class="error-message">
+        Yield performance is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="cropHistory">Crop History</label>
+      <textarea 
+        id="cropHistory" 
+        formControlName="cropHistory" 
+        placeholder="Enter crop history details"
+        rows="4"
+      ></textarea>
+      <div *ngIf="farmForm.get('cropHistory')?.invalid && farmForm.get('cropHistory')?.touched" class="error-message">
+        Crop history is required
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn" [disabled]="farmForm.invalid">Save Farm Data</button>
+  </form>
+</div>
