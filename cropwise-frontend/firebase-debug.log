@@ -1,0 +1,21 @@
+[debug] [2025-04-29T16:00:21.825Z] ----------------------------------------------------------------------
+[debug] [2025-04-29T16:00:21.828Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\vibhi\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2025-04-29T16:00:21.829Z] CLI Version:   14.2.1
+[debug] [2025-04-29T16:00:21.829Z] Platform:      win32
+[debug] [2025-04-29T16:00:21.829Z] Node Version:  v22.14.0
+[debug] [2025-04-29T16:00:21.829Z] Time:          Wed Apr 30 2025 02:00:21 GMT+1000 (Australian Eastern Standard Time)
+[debug] [2025-04-29T16:00:21.829Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-04-29T16:00:21.837Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-04-29T16:00:21.837Z] > authorizing via signed-in user (vibhisingh1345@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\vibhi\OneDrive - LA TROBE UNIVERSITY\Documents\cropwise-angular-flask-firebase\crop-wise\cropwise-frontend
+
