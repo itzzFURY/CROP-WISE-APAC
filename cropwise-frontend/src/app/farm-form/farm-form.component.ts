@@ -2,14 +2,16 @@ import { Component, type OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormBuilder, type FormGroup, ReactiveFormsModule, Validators } from "@angular/forms"
 import { getAuth } from "firebase/auth"
-import { getDatabase, ref, push, set } from "firebase/database"
+import { getDatabase } from "firebase/database"
 import { app } from "../firebase.config"
-import { HttpClient, HttpClientModule } from "@angular/common/http"  // Changed type to actual import
+import { HttpClient, HttpClientModule } from "@angular/common/http"
+import { NavbarComponent } from "../navbar/navbar.component"
+import { Router } from "@angular/router"
 
 @Component({
   selector: "app-farm-form",
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HttpClientModule],
+  imports: [CommonModule, ReactiveFormsModule, HttpClientModule, NavbarComponent],
   templateUrl: "./farm-form.component.html",
   styleUrls: ["./farm-form.component.css"],
 })
@@ -22,17 +24,20 @@ export class FarmFormComponent implements OnInit {
   submitSuccess = false
   submitError = false
   errorMessage = ""
-  http: HttpClient  // Changed type to HttpClient
+  http: HttpClient
 
   constructor(
     private fb: FormBuilder,
-    private httpClient: HttpClient  // Inject HttpClient here
+    httpClient: HttpClient,
+    private router: Router,
   ) {
-    this.http = httpClient;  // Assign the injected HttpClient to the http property
+    this.http = httpClient
     this.farmForm = this.fb.group({
       farmName: ["", Validators.required],
       farmSize: ["", [Validators.required, Validators.min(0.1)]],
       location: ["", Validators.required],
+      latitude: [""],
+      longitude: [""],
       soilType: ["", Validators.required],
       yieldPerformance: ["", Validators.required],
       cropHistory: ["", Validators.required],
@@ -44,6 +49,8 @@ export class FarmFormComponent implements OnInit {
     this.auth.onAuthStateChanged((user) => {
       if (user) {
         this.userId = user.uid
+      } else {
+        this.router.navigate(["/login"])
       }
     })
   }
@@ -54,7 +61,13 @@ export class FarmFormComponent implements OnInit {
         (position) => {
           const latitude = position.coords.latitude
           const longitude = position.coords.longitude
-  
+
+          // Store latitude and longitude in the form
+          this.farmForm.patchValue({
+            latitude: latitude.toString(),
+            longitude: longitude.toString(),
+          })
+
           // Use Google Maps API to get formatted address
           this.http
             .get(
@@ -63,25 +76,22 @@ export class FarmFormComponent implements OnInit {
             .subscribe({
               next: (response: any) => {
                 if (response.results && response.results.length > 0) {
-                  const formattedAddress = response.results[0].formatted_address;
-                  this.farmForm.patchValue({ location: formattedAddress });
-                  console.log("Location set to:", formattedAddress);
+                  const formattedAddress = response.results[0].formatted_address
+                  this.farmForm.patchValue({ location: formattedAddress })
+                  console.log("Location set to:", formattedAddress)
                 } else {
                   // If geocoding fails, just use coordinates
-                  this.farmForm.patchValue({ location: `${latitude}, ${longitude}` });
-                  console.log("Location set to coordinates:", `${latitude}, ${longitude}`);
+                  this.farmForm.patchValue({ location: `${latitude}, ${longitude}` })
+                  console.log("Location set to coordinates:", `${latitude}, ${longitude}`)
                 }
               },
               error: (error: any) => {
-                console.error("Error getting address:", error);
+                console.error("Error getting address:", error)
                 // Fallback to coordinates
-                this.farmForm.patchValue({ location: `${latitude}, ${longitude}` });
-                console.log("Location set to coordinates after error:", `${latitude}, ${longitude}`);
+                this.farmForm.patchValue({ location: `${latitude}, ${longitude}` })
+                console.log("Location set to coordinates after error:", `${latitude}, ${longitude}`)
               },
-            });
-          
-          // IMPORTANT: Remove this line as it overrides the async result from Google Maps API
-          // this.farmForm.patchValue({ location: `${latitude}, ${longitude}` })
+            })
         },
         (error) => {
           console.error("Error getting location:", error)
@@ -101,26 +111,27 @@ export class FarmFormComponent implements OnInit {
         timestamp: new Date().toISOString(),
       }
 
-      // Option 1: Send data to Flask backend
-      // Uncomment this section when your Flask backend is ready
+      // Send data to Flask backend
       this.http.post("http://localhost:5000/api/farm-data", formData).subscribe({
         next: (response: any) => {
-          console.log("Farm data saved successfully:", response);
-          this.submitSuccess = true;
-          this.submitError = false;
-          this.farmForm.reset();
+          console.log("Farm data saved successfully:", response)
+          this.submitSuccess = true
+          this.submitError = false
 
-          // Reset success message after 3 seconds
+          // Reset form after successful submission
+          this.farmForm.reset()
+
+          // Add a delay before redirecting to crop suggestions
           setTimeout(() => {
-            this.submitSuccess = false;
-          }, 3000);
+            this.router.navigate(["/crop-suggestions"])
+          }, 2000)
         },
         error: (error: { message: string }) => {
-          console.error("Error saving farm data:", error);
-          this.submitError = true;
-          this.errorMessage = error.message || "Failed to save farm data. Please try again.";
+          console.error("Error saving farm data:", error)
+          this.submitError = true
+          this.errorMessage = error.message || "Failed to save farm data. Please try again."
         },
-      });
+      })
     }
   }
 }
