@@ -22,9 +22,14 @@
         <button (click)="navigateToFarmForm()" class="secondary-btn">Add Farm Details</button>
     </div>
     
-    <button (click)="getSuggestions()" class="get-suggestions-btn" [disabled]="loading || !selectedFarm">
-      {{ loading ? 'Getting Suggestions...' : 'Get Crop Suggestions' }}
-    </button>
+    <div *ngIf="selectedFarm && !loading" class="suggestion-actions">
+        <button (click)="getSuggestions()" class="get-suggestions-btn" [disabled]="loading">
+            {{ hasSavedSuggestions ? 'Generate New Suggestions' : 'Get Crop Suggestions' }}
+        </button>
+        <p *ngIf="hasSavedSuggestions" class="last-updated">
+            Last updated: {{ lastUpdated | date:'medium' }}
+        </p>
+    </div>
     
     <div *ngIf="error" class="error-message">
       {{ error }}

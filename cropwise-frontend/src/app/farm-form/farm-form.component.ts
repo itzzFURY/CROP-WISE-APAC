@@ -1,12 +1,24 @@
 import { Component, type OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormBuilder, type FormGroup, ReactiveFormsModule, Validators } from "@angular/forms"
-import { getAuth } from "firebase/auth"
-import { getDatabase } from "firebase/database"
-import { app } from "../firebase.config"
 import { HttpClient, HttpClientModule } from "@angular/common/http"
 import { NavbarComponent } from "../navbar/navbar.component"
 import { Router } from "@angular/router"
+import { AuthService } from "../auth.service"
+
+interface Farm {
+  id: string
+  farmName: string
+  farmSize: number
+  location: string
+  latitude: string
+  longitude: string
+  soilType: string
+  yieldPerformance: string
+  cropHistory: string
+  timestamp: string
+  userId: string
+}
 
 @Component({
   selector: "app-farm-form",
@@ -16,22 +28,31 @@ import { Router } from "@angular/router"
   styleUrls: ["./farm-form.component.css"],
 })
 export class FarmFormComponent implements OnInit {
-  farmForm: FormGroup
-  auth = getAuth(app)
-  database = getDatabase(app)
+  farmForm!: FormGroup
   userId: string | null = null
   soilTypes = ["Clay", "Sandy", "Loamy", "Silty", "Peaty", "Chalky", "Other"]
   submitSuccess = false
   submitError = false
   errorMessage = ""
+  successMessage = ""
   http: HttpClient
+  farms: Farm[] = []
+  loading = true // Start with loading state
+  showForm = false // Start with list view, not form
+  isEditing = false
+  currentFarmId: string | null = null
 
   constructor(
     private fb: FormBuilder,
     httpClient: HttpClient,
     private router: Router,
+    private authService: AuthService,
   ) {
     this.http = httpClient
+    this.initForm()
+  }
+
+  initForm(): void {
     this.farmForm = this.fb.group({
       farmName: ["", Validators.required],
       farmSize: ["", [Validators.required, Validators.min(0.1)]],
@@ -44,15 +65,110 @@ export class FarmFormComponent implements OnInit {
     })
   }
 
-  ngOnInit(): void {
-    // Get current user ID
-    this.auth.onAuthStateChanged((user) => {
+  async ngOnInit(): Promise<void> {
+    console.log("Farm Form Component initialized, showForm =", this.showForm)
+
+    try {
+      // Get current user using the Promise-based method
+      const user = await this.authService.getCurrentUser()
+
       if (user) {
+        console.log("User authenticated:", user.uid)
         this.userId = user.uid
+        this.loadFarms()
       } else {
+        console.log("No authenticated user")
         this.router.navigate(["/login"])
       }
+    } catch (error) {
+      console.error("Error checking authentication:", error)
+      this.router.navigate(["/login"])
+    }
+  }
+
+  loadFarms(): void {
+    if (!this.userId) return
+
+    this.loading = true
+    this.showForm = false // Ensure we're showing the list view
+
+    console.log("Loading farms for user:", this.userId)
+
+    this.http.get<Farm[]>(`http://localhost:5000/api/farm-data/${this.userId}`).subscribe({
+      next: (farms) => {
+        console.log("Farms loaded:", farms)
+        this.farms = farms
+        this.loading = false
+      },
+      error: (error) => {
+        console.error("Error loading farms:", error)
+        this.errorMessage = "Failed to load farms. Please try again."
+        this.loading = false
+        this.submitError = true
+      },
     })
+  }
+
+  // Rest of the component remains the same...
+  showAddFarmForm(): void {
+    console.log("Showing add farm form")
+    this.isEditing = false
+    this.currentFarmId = null
+    this.initForm() // Reset form
+    this.showForm = true
+  }
+
+  editFarm(farm: Farm): void {
+    console.log("Editing farm:", farm)
+    this.isEditing = true
+    this.currentFarmId = farm.id
+
+    // Populate form with farm data
+    this.farmForm.patchValue({
+      farmName: farm.farmName,
+      farmSize: farm.farmSize,
+      location: farm.location,
+      latitude: farm.latitude,
+      longitude: farm.longitude,
+      soilType: farm.soilType,
+      yieldPerformance: farm.yieldPerformance,
+      cropHistory: farm.cropHistory,
+    })
+
+    this.showForm = true
+  }
+
+  deleteFarm(farm: Farm): void {
+    if (confirm(`Are you sure you want to delete ${farm.farmName}?`)) {
+      console.log("Deleting farm:", farm)
+
+      // We need to pass the userId as a query parameter
+      this.http.delete(`http://localhost:5000/api/farm-data/${farm.id}?userId=${this.userId}`).subscribe({
+        next: () => {
+          console.log("Farm deleted successfully")
+          this.successMessage = `Farm "${farm.farmName}" deleted successfully`
+          this.submitSuccess = true
+          setTimeout(() => {
+            this.submitSuccess = false
+          }, 3000)
+          // Remove farm from local array
+          this.farms = this.farms.filter((f) => f.id !== farm.id)
+        },
+        error: (error) => {
+          console.error("Error deleting farm:", error)
+          this.errorMessage = "Failed to delete farm. Please try again."
+          this.submitError = true
+        },
+      })
+    }
+  }
+
+  cancelForm(): void {
+    console.log("Canceling form, returning to list view")
+    this.showForm = false
+    this.isEditing = false
+    this.currentFarmId = null
+    this.initForm() // Reset form
   }
 
   getUserLocation(): void {
@@ -111,27 +227,57 @@ export class FarmFormComponent implements OnInit {
         timestamp: new Date().toISOString(),
       }
 
-      // Send data to Flask backend
-      this.http.post("http://localhost:5000/api/farm-data", formData).subscribe({
-        next: (response: any) => {
-          console.log("Farm data saved successfully:", response)
-          this.submitSuccess = true
-          this.submitError = false
+      // Clear previous messages
+      this.submitSuccess = false
+      this.submitError = false
 
-          // Reset form after successful submission
-          this.farmForm.reset()
+      if (this.isEditing && this.currentFarmId) {
+        // Update existing farm
+        console.log("Updating farm:", this.currentFarmId)
+        this.http.put(`http://localhost:5000/api/farm-data/${this.currentFarmId}`, formData).subscribe({
+          next: (response: any) => {
+            console.log("Farm data updated successfully:", response)
+            this.successMessage = "Farm updated successfully"
+            this.submitSuccess = true
+            this.loadFarms() // Refresh farms list
 
-          // Add a delay before redirecting to crop suggestions
-          setTimeout(() => {
-            this.router.navigate(["/crop-suggestions"])
-          }, 2000)
-        },
-        error: (error: { message: string }) => {
-          console.error("Error saving farm data:", error)
-          this.submitError = true
-          this.errorMessage = error.message || "Failed to save farm data. Please try again."
-        },
-      })
+            // Reset form and go back to list view after a delay
+            setTimeout(() => {
+              this.showForm = false
+              this.isEditing = false
+              this.currentFarmId = null
+              this.initForm()
+            }, 1500)
+          },
+          error: (error: { message: string }) => {
+            console.error("Error updating farm data:", error)
+            this.submitError = true
+            this.errorMessage = error.message || "Failed to update farm data. Please try again."
+          },
+        })
+      } else {
+        // Create new farm
+        console.log("Creating new farm")
+        this.http.post("http://localhost:5000/api/farm-data", formData).subscribe({
+          next: (response: any) => {
+            console.log("Farm data saved successfully:", response)
+            this.successMessage = "Farm added successfully"
+            this.submitSuccess = true
+            this.loadFarms() // Refresh farms list
+
+            // Reset form and go back to list view after a delay
+            setTimeout(() => {
+              this.showForm = false
+              this.initForm()
+            }, 1500)
+          },
+          error: (error: { message: string }) => {
+            console.error("Error saving farm data:", error)
+            this.submitError = true
+            this.errorMessage = error.message || "Failed to save farm data. Please try again."
+          },
+        })
+      }
     }
   }
 }

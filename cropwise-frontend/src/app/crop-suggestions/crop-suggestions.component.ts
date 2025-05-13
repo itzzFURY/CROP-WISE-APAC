@@ -1,10 +1,10 @@
 import { Component, type OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
-import { GeminiService, CropSuggestion } from "../gemini.service"
-import { getAuth } from "firebase/auth"
+import { GeminiService, type CropSuggestion } from "../gemini.service"
 import { NavbarComponent } from "../navbar/navbar.component"
 import { HttpClientModule } from "@angular/common/http"
 import { Router } from "@angular/router"
+import { AuthService } from "../auth.service"
 
 interface Farm {
   id: string
@@ -18,6 +18,14 @@ interface Farm {
   cropHistory: string
   timestamp: string
   userId: string
+}
+
+interface SavedSuggestion {
+  farmId: string
+  suggestions: CropSuggestion[]
+  weatherData: any
+  analysis: string
+  timestamp: string
 }
 
 @Component({
@@ -34,18 +42,24 @@ export class CropSuggestionsComponent implements OnInit {
   loading = false
   error = ""
   userId: string | null = null
-  auth = getAuth()
   farms: Farm[] = []
   selectedFarm: Farm | null = null
+  hasSavedSuggestions = false
+  lastUpdated: Date | null = null
 
   constructor(
     private geminiService: GeminiService,
     private router: Router,
+    private authService: AuthService,
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     console.log("CropSuggestionsComponent initialized")
-    this.auth.onAuthStateChanged((user) => {
+
+    try {
+      // Get current user using the Promise-based method
+      const user = await this.authService.getCurrentUser()
+
       if (user) {
         console.log("User authenticated:", user.uid)
         this.userId = user.uid
@@ -54,7 +68,10 @@ export class CropSuggestionsComponent implements OnInit {
         console.log("No authenticated user")
         this.router.navigate(["/login"])
       }
-    })
+    } catch (error) {
+      console.error("Error checking authentication:", error)
+      this.router.navigate(["/login"])
+    }
   }
 
   loadFarms(): void {
@@ -72,7 +89,7 @@ export class CropSuggestionsComponent implements OnInit {
 
         // If there's only one farm, select it automatically
         if (farms.length === 1) {
-          this.selectedFarm = farms[0]
+          this.selectFarm(farms[0])
         }
       },
       error: (error: any) => {
@@ -86,9 +103,44 @@ export class CropSuggestionsComponent implements OnInit {
   selectFarm(farm: Farm): void {
     console.log("Farm selected:", farm)
     this.selectedFarm = farm
-    // Clear previous suggestions when a new farm is selected
+
+    // Clear current suggestions
     this.suggestions = []
     this.weatherData = null
+    this.analysis = ""
+
+    // Check if we have saved suggestions for this farm
+    this.loadSavedSuggestions(farm.id)
+  }
+
+  loadSavedSuggestions(farmId: string): void {
+    if (!this.userId) return
+
+    this.loading = true
+
+    this.geminiService.getSavedSuggestions(farmId).subscribe({
+      next: (savedSuggestion: SavedSuggestion | null) => {
+        this.loading = false
+
+        if (savedSuggestion) {
+          console.log("Loaded saved suggestions:", savedSuggestion)
+          this.suggestions = savedSuggestion.suggestions
+          this.weatherData = savedSuggestion.weatherData
+          this.analysis = savedSuggestion.analysis
+          this.hasSavedSuggestions = true
+          this.lastUpdated = new Date(savedSuggestion.timestamp)
+        } else {
+          console.log("No saved suggestions found")
+          this.hasSavedSuggestions = false
+          this.lastUpdated = null
+        }
+      },
+      error: (error: any) => {
+        console.error("Error loading saved suggestions:", error)
+        this.loading = false
+        this.hasSavedSuggestions = false
+      },
+    })
   }
 
   getSuggestions(): void {
@@ -109,6 +161,11 @@ export class CropSuggestionsComponent implements OnInit {
         this.weatherData = response.weatherData
         this.analysis = response.analysis
         this.loading = false
+        this.hasSavedSuggestions = true
+        this.lastUpdated = new Date()
+
+        // Save the suggestions
+        this.saveSuggestions()
 
         // Scroll to suggestions
         setTimeout(() => {
@@ -122,6 +179,27 @@ export class CropSuggestionsComponent implements OnInit {
         console.error("Error getting crop suggestions:", error)
         this.error = "Failed to get crop suggestions. Please try again."
         this.loading = false
+      },
+    })
+  }
+
+  saveSuggestions(): void {
+    if (!this.selectedFarm || !this.userId || this.suggestions.length === 0) return
+
+    const savedSuggestion: SavedSuggestion = {
+      farmId: this.selectedFarm.id,
+      suggestions: this.suggestions,
+      weatherData: this.weatherData,
+      analysis: this.analysis,
+      timestamp: new Date().toISOString(),
+    }
+
+    this.geminiService.saveSuggestions(savedSuggestion).subscribe({
+      next: (response: any) => {
+        console.log("Suggestions saved successfully:", response)
+      },
+      error: (error: any) => {
+        console.error("Error saving suggestions:", error)
       },
     })
   }

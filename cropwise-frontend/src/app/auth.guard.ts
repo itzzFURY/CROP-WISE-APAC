@@ -11,10 +11,17 @@ export class AuthGuard implements CanActivate {
     private router: Router,
   ) {}
 
-  canActivate(): boolean {
-    if (this.authService.currentUser) {
-      return true
-    } else {
+  async canActivate(): Promise<boolean> {
+    try {
+      const user = await this.authService.getCurrentUser()
+      if (user) {
+        return true
+      } else {
+        this.router.navigate(["/login"])
+        return false
+      }
+    } catch (error) {
+      console.error("Auth guard error:", error)
       this.router.navigate(["/login"])
       return false
     }

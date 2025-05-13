@@ -89,6 +89,44 @@ def get_farm_data(user_id):
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/farm-data/<farm_id>', methods=['DELETE'])
+def delete_farm_data(farm_id):
+    try:
+        # Get user ID from request (you might need to adjust this based on your auth setup)
+        user_id = request.args.get('userId')
+        if not user_id:
+            return jsonify({'error': 'User ID is required'}), 400
+            
+        # Delete farm from Firebase
+        ref = db.reference(f'/farms/{user_id}/{farm_id}')
+        ref.delete()
+        
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        print(f"Error deleting farm: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/farm-data/<farm_id>', methods=['PUT'])
+def update_farm_data(farm_id):
+    try:
+        # Get data from request
+        data = request.json
+        user_id = data.get('userId')
+        
+        if not user_id:
+            return jsonify({'error': 'User ID is required'}), 400
+            
+        # Update farm in Firebase
+        ref = db.reference(f'/farms/{user_id}/{farm_id}')
+        ref.update(data)
+        
+        return jsonify({'success': True, 'id': farm_id}), 200
+    except Exception as e:
+        print(f"Error updating farm: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/crop-suggestions', methods=['POST'])
 def get_crop_suggestions():
     try:
@@ -410,6 +448,56 @@ Ensure your response is properly formatted as valid JSON that can be parsed prog
                 return [], f"Error parsing response: {str(e)}"
     
     return [], "Could not extract text from Gemini response"
+
+@app.route('/api/saved-suggestions', methods=['POST'])
+def save_suggestions():
+    try:
+        # Get data from request
+        data = request.json
+        print(f"Saving suggestions for farm: {data['farmId']}")
+        
+        # Validate required fields
+        required_fields = ['farmId', 'suggestions', 'weatherData', 'analysis', 'timestamp']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Missing required field: {field}'}), 400
+        
+        # Save data to Firebase Realtime Database
+        try:
+            ref = db.reference(f'/saved-suggestions/{data["farmId"]}')
+            ref.set(data)
+            print(f"Suggestions saved for farm ID: {data['farmId']}")
+        except Exception as firebase_error:
+            print(f"Firebase error: {firebase_error}")
+            return jsonify({'error': f'Database error: {str(firebase_error)}'}), 500
+        
+        return jsonify({'success': True}), 201
+    
+    except Exception as e:
+        print(f"Error saving suggestions: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+# Add this endpoint to get saved suggestions for a farm
+@app.route('/api/saved-suggestions/<farm_id>', methods=['GET'])
+def get_saved_suggestions(farm_id):
+    try:
+        print(f"Getting saved suggestions for farm: {farm_id}")
+        # Get saved suggestions for specific farm
+        ref = db.reference(f'/saved-suggestions/{farm_id}')
+        data = ref.get()
+        
+        if data is None:
+            print("No saved suggestions found")
+            return jsonify({'error': 'No saved suggestions found'}), 404
+        
+        print(f"Found saved suggestions for farm: {farm_id}")
+        return jsonify(data), 200
+    
+    except Exception as e:
+        print(f"Error getting saved suggestions: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/test', methods=['GET'])
 def test_endpoint():

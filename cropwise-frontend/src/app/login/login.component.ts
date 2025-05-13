@@ -13,16 +13,21 @@ import { AuthService } from "../auth.service"
 })
 export class LoginComponent implements OnInit {
   authForm: FormGroup
+  resetForm: FormGroup
   isSignUp = false
   isLoading = false
   errorMessage = ""
+  showResetForm = false
+  resetSuccess = false
+  resetError = false
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
   ) {
-    this.authForm = this.createForm()
+    this.authForm = this.createAuthForm()
+    this.resetForm = this.createResetForm()
   }
 
   ngOnInit(): void {
@@ -32,7 +37,7 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  createForm(): FormGroup {
+  createAuthForm(): FormGroup {
     return this.fb.group(
       {
         email: ["", [Validators.required, Validators.email]],
@@ -41,6 +46,12 @@ export class LoginComponent implements OnInit {
       },
       { validator: this.passwordMatchValidator },
     )
+  }
+
+  createResetForm(): FormGroup {
+    return this.fb.group({
+      email: ["", [Validators.required, Validators.email]],
+    })
   }
 
   passwordMatchValidator(g: FormGroup) {
@@ -87,5 +98,39 @@ export class LoginComponent implements OnInit {
           this.errorMessage = error.message || "Login failed. Please check your credentials."
         })
     }
+  }
+
+  onResetSubmit(): void {
+    if (this.resetForm.invalid) {
+      return
+    }
+
+    this.isLoading = true
+    this.resetSuccess = false
+    this.resetError = false
+    this.errorMessage = ""
+
+    const { email } = this.resetForm.value
+
+    this.authService
+      .sendPasswordResetEmail(email)
+      .then(() => {
+        this.isLoading = false
+        this.resetSuccess = true
+
+        // Clear the form
+        this.resetForm.reset()
+
+        // After 5 seconds, go back to login
+        setTimeout(() => {
+          this.showResetForm = false
+          this.resetSuccess = false
+        }, 5000)
+      })
+      .catch((error) => {
+        this.isLoading = false
+        this.resetError = true
+        this.errorMessage = error.message || "Failed to send password reset email. Please try again."
+      })
   }
 }

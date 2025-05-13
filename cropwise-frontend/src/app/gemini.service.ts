@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core"
 import { HttpClient } from "@angular/common/http"
-import type { Observable } from "rxjs"
+import { type Observable, of } from "rxjs"
+import { catchError } from "rxjs/operators"
 
 export interface CropSuggestion {
   cropName: string
@@ -43,6 +44,14 @@ export interface Farm {
   userId: string
 }
 
+export interface SavedSuggestion {
+  farmId: string
+  suggestions: CropSuggestion[]
+  weatherData: any
+  analysis: string
+  timestamp: string
+}
+
 @Injectable({
   providedIn: "root",
 })
@@ -59,6 +68,21 @@ export class GeminiService {
   // Get farm data from Firebase
   getFarmData(userId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/farm-data/${userId}`)
+  }
+
+  // Get saved suggestions for a farm
+  getSavedSuggestions(farmId: string): Observable<SavedSuggestion | null> {
+    return this.http.get<SavedSuggestion>(`${this.apiUrl}/saved-suggestions/${farmId}`).pipe(
+      catchError((error) => {
+        console.error("Error fetching saved suggestions:", error)
+        return of(null)
+      }),
+    )
+  }
+
+  // Save suggestions for a farm
+  saveSuggestions(savedSuggestion: SavedSuggestion): Observable<any> {
+    return this.http.post(`${this.apiUrl}/saved-suggestions`, savedSuggestion)
   }
 
   // Prepare the prompt for Gemini API

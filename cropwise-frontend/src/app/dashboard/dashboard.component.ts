@@ -119,14 +119,23 @@ export class DashboardComponent implements OnInit {
     private authService: AuthService,
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     console.log("Dashboard component initialized")
-    const user = this.authService.currentUser
-    if (user) {
-      console.log("User found in dashboard:", user.email)
-      this.userEmail = user.email
-    } else {
-      console.log("No user found in dashboard")
+
+    try {
+      // Get current user using the Promise-based method
+      const user = await this.authService.getCurrentUser()
+
+      if (user) {
+        console.log("User found in dashboard:", user.email)
+        this.userEmail = user.email
+      } else {
+        console.log("No user found in dashboard")
+        this.router.navigate(["/login"])
+      }
+    } catch (error) {
+      console.error("Error checking authentication:", error)
+      this.router.navigate(["/login"])
     }
   }
 
