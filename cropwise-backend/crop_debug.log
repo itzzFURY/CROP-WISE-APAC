@@ -1,0 +1,108 @@
+
+
+=== DEBUG LOG 2025-05-15T14:26:09.100450 ===
+FARM DATA: {
+  "cropHistory": "oats(2023), wheat(2024)",
+  "farmName": "Trial2",
+  "farmSize": 10,
+  "id": "-OPpV08UN0NW4G0niikD",
+  "latitude": "-37.715968",
+  "location": "40 Lang St, Sunnybank Hills QLD 4109",
+  "longitude": "144.9754624",
+  "soilType": "Loamy",
+  "timestamp": "2025-05-13T11:40:43.942Z",
+  "userId": "BzVV6bo22lacr99lRTfq7AFa5Rt1",
+  "yieldPerformance": "Bad",
+  "cropCount": 2
+}
+
+CROP COUNT: 2
+
+WEATHER DATA: {
+  "temperature": 25,
+  "rainfall": 10,
+  "humidity": 60,
+  "season": "Unknown",
+  "forecast": "Unknown"
+}
+
+RESPONSE DATA KEYS: ['suggestions', 'weatherData', 'analysis', 'cropCombinations']
+
+SUGGESTIONS COUNT: 2
+
+ANALYSIS: The farm's previous poor yield with cereals suggests a need for crop rotation and potentially addressing soil health issues.  The limited weather data necessitates selecting crops with some drought tolerance. Loamy soil is a positive factor for a range of crop options.  Further weather information, particularly regarding the current season and anticipated rainfall, is crucial for more precise recommendations.
+
+CROP COMBINATIONS COUNT: 1
+
+
+
+=== DEBUG LOG 2025-05-15T14:26:49.247717 ===
+FARM DATA: {
+  "cropHistory": "oats(2023), wheat(2024)",
+  "farmName": "Trial2",
+  "farmSize": 10,
+  "id": "-OPpV08UN0NW4G0niikD",
+  "latitude": "-37.715968",
+  "location": "40 Lang St, Sunnybank Hills QLD 4109",
+  "longitude": "144.9754624",
+  "soilType": "Loamy",
+  "timestamp": "2025-05-13T11:40:43.942Z",
+  "userId": "BzVV6bo22lacr99lRTfq7AFa5Rt1",
+  "yieldPerformance": "Bad",
+  "cropCount": 3
+}
+
+CROP COUNT: 3
+
+WEATHER DATA: {
+  "temperature": 25,
+  "rainfall": 10,
+  "humidity": 60,
+  "season": "Unknown",
+  "forecast": "Unknown"
+}
+
+RESPONSE DATA KEYS: ['suggestions', 'weatherData', 'analysis', 'cropCombinations']
+
+SUGGESTIONS COUNT: 3
+
+ANALYSIS: The farm has loamy soil and a history of poor yields with cereal crops. The current weather data is limited, but indicates moderate temperature and low rainfall. Crop rotation is recommended to improve soil health and break pest cycles. Drought-tolerant and heat-resistant crops are likely to perform better given the location and previous crop history.
+
+CROP COMBINATIONS COUNT: 1
+
+
+
+=== DEBUG LOG 2025-05-15T16:01:20.971284 ===
+FARM DATA: {
+  "cropHistory": "rice",
+  "farmName": "farm1",
+  "farmSize": 19,
+  "id": "ec894951-bc56-41c3-9b52-0ea152c79c10",
+  "latitude": "-37.7192448",
+  "location": "Biological Sciences 1, 1 Biology Dr, Bundoora VIC 3083, Australia",
+  "longitude": "145.047552",
+  "soilType": "Peaty",
+  "timestamp": "2025-05-15T06:00:52.084Z",
+  "userId": "4kFEQE36lhYeDKxJNLBBQ7VWZ4V2",
+  "yieldPerformance": "bad",
+  "cropCount": 3
+}
+
+CROP COUNT: 3
+
+WEATHER DATA: {
+  "temperature": 25,
+  "rainfall": 10,
+  "humidity": 60,
+  "season": "Unknown",
+  "forecast": "Unknown"
+}
+
+RESPONSE DATA KEYS: ['suggestions', 'weatherData', 'analysis', 'cropCombinations']
+
+SUGGESTIONS COUNT: 3
+
+ANALYSIS: The peaty soil presents drainage challenges and requires amendments. The provided weather data is insufficient to determine the current season, which is crucial for accurate crop selection. Assuming a cool season based on the location and temperature, the suggested crops are suitable. Further soil testing and detailed weather information are recommended for optimal crop planning.
+
+CROP COMBINATIONS COUNT: 1
+

@@ -17,6 +17,8 @@ import { AuthService } from "../auth.service"
         <button class="nav-button" (click)="navigateTo('/dashboard')">Dashboard</button>
         <button class="nav-button" (click)="navigateTo('/farm-form')">Farm Form</button>
         <button class="nav-button" (click)="navigateTo('/crop-suggestions')">Crop Suggestions</button>
+        <button class="nav-button" (click)="navigateTo('/account')">Account</button>
+        <button class="nav-button" (click)="navigateTo('/support')">Support</button>
         <button class="nav-button logout" (click)="logout()">Logout</button>
       </div>
     </nav>

@@ -1,0 +1,122 @@
+<app-navbar></app-navbar>
+
+<div class="account-container">
+  <div class="account-header">
+    <h1>Account Settings</h1>
+    <p>Manage your account information</p>
+  </div>
+  
+  <div class="account-info">
+    <div class="info-item">
+      <span class="label">Email:</span>
+      <span class="value">{{ userEmail }}</span>
+    </div>
+    <div class="info-item">
+      <span class="label">Username:</span>
+      <span class="value">{{ username || 'Not set' }}</span>
+    </div>
+  </div>
+  
+  <div class="account-sections">
+    <!-- Username Update Section -->
+    <div class="account-section">
+      <h2>Update Username</h2>
+      <p>Change your display name that appears throughout the application.</p>
+      
+      <form [formGroup]="usernameForm" (ngSubmit)="onUsernameSubmit()">
+        <div class="form-group">
+          <label for="username">New Username</label>
+          <input 
+            type="text" 
+            id="username" 
+            formControlName="username" 
+            placeholder="Enter new username"
+          >
+          <div *ngIf="usernameForm.get('username')?.invalid && usernameForm.get('username')?.touched" class="error-message">
+            Username must be at least 3 characters
+          </div>
+        </div>
+        
+        <div *ngIf="usernameSuccess" class="success-alert">
+          Username updated successfully!
+        </div>
+        
+        <div *ngIf="usernameError" class="error-alert">
+          {{ usernameError }}
+        </div>
+        
+        <button 
+          type="submit" 
+          class="submit-button" 
+          [disabled]="usernameForm.invalid || isLoadingUsername">
+          {{ isLoadingUsername ? 'Updating...' : 'Update Username' }}
+        </button>
+      </form>
+    </div>
+    
+    <!-- Password Update Section -->
+    <div class="account-section">
+      <h2>Change Password</h2>
+      <p>Update your password to keep your account secure.</p>
+      
+      <form [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()">
+        <div class="form-group">
+          <label for="currentPassword">Current Password</label>
+          <input 
+            type="password" 
+            id="currentPassword" 
+            formControlName="currentPassword" 
+            placeholder="Enter current password"
+          >
+          <div *ngIf="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched" class="error-message">
+            Current password is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="newPassword">New Password</label>
+          <input 
+            type="password" 
+            id="newPassword" 
+            formControlName="newPassword" 
+            placeholder="Enter new password"
+          >
+          <div *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched" class="error-message">
+            New password must be at least 6 characters
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="confirmPassword">Confirm New Password</label>
+          <input 
+            type="password" 
+            id="confirmPassword" 
+            formControlName="confirmPassword" 
+            placeholder="Confirm new password"
+          >
+          <div *ngIf="passwordForm.get('confirmPassword')?.invalid && passwordForm.get('confirmPassword')?.touched" class="error-message">
+            Please confirm your new password
+          </div>
+          <div *ngIf="passwordForm.hasError('mismatch') && passwordForm.get('confirmPassword')?.touched" class="error-message">
+            Passwords do not match
+          </div>
+        </div>
+        
+        <div *ngIf="passwordSuccess" class="success-alert">
+          Password updated successfully!
+        </div>
+        
+        <div *ngIf="passwordError" class="error-alert">
+          {{ passwordError }}
+        </div>
+        
+        <button 
+          type="submit" 
+          class="submit-button" 
+          [disabled]="passwordForm.invalid || isLoadingPassword">
+          {{ isLoadingPassword ? 'Updating...' : 'Update Password' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

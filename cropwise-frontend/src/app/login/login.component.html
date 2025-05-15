@@ -54,12 +54,12 @@
       <div class="form-toggle">
         <button 
           [class.active]="!isSignUp" 
-          (click)="isSignUp = false">
+          (click)="toggleSignUp(false)">
           Login
         </button>
         <button 
           [class.active]="isSignUp" 
-          (click)="isSignUp = true">
+          (click)="toggleSignUp(true)">
           Sign Up
         </button>
       </div>
@@ -75,6 +75,20 @@
           >
           <div *ngIf="authForm.get('email')?.invalid && authForm.get('email')?.touched" class="error-message">
             Please enter a valid email address
+          </div>
+        </div>
+        
+        <!-- Username field (only for signup) -->
+        <div *ngIf="isSignUp" class="form-group">
+          <label for="username">Username</label>
+          <input 
+            type="text" 
+            id="username" 
+            formControlName="username" 
+            placeholder="Choose a username"
+          >
+          <div *ngIf="authForm.get('username')?.invalid && authForm.get('username')?.touched" class="error-message">
+            Username is required
           </div>
         </div>
         
@@ -114,6 +128,14 @@
           [disabled]="authForm.invalid || isLoading">
           {{ isLoading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Login') }}
         </button>
+
+        <div class="social-login">
+          <p>Or continue with</p>
+          <button type="button" class="google-btn" (click)="signInWithGoogle()">
+            <img src="assets/image.png" alt="Google" class="google-icon">
+            <span>{{ isSignUp ? 'Sign up with Google' : 'Sign in with Google' }}</span>
+          </button>
+        </div>
         
         <div *ngIf="!isSignUp" class="forgot-password">
           <a href="javascript:void(0)" (click)="showResetForm = true">Forgot Password?</a>

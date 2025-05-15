@@ -42,6 +42,7 @@ export class LoginComponent implements OnInit {
       {
         email: ["", [Validators.required, Validators.email]],
         password: ["", [Validators.required, Validators.minLength(6)]],
+        username: ["", this.isSignUp ? Validators.required : null],
         confirmPassword: [""],
       },
       { validator: this.passwordMatchValidator },
@@ -65,6 +66,22 @@ export class LoginComponent implements OnInit {
     return { mismatch: true }
   }
 
+  // Toggle between login and signup
+  toggleSignUp(value: boolean): void {
+    this.isSignUp = value
+
+    // Update validators based on form type
+    const usernameControl = this.authForm.get("username")
+    if (usernameControl) {
+      if (this.isSignUp) {
+        usernameControl.setValidators(Validators.required)
+      } else {
+        usernameControl.clearValidators()
+      }
+      usernameControl.updateValueAndValidity()
+    }
+  }
+
   onSubmit(): void {
     if (this.authForm.invalid) {
       return
@@ -73,11 +90,11 @@ export class LoginComponent implements OnInit {
     this.isLoading = true
     this.errorMessage = ""
 
-    const { email, password } = this.authForm.value
+    const { email, password, username } = this.authForm.value
 
     if (this.isSignUp) {
       this.authService
-        .register(email, password)
+        .register(email, password, username)
         .then((user) => {
           this.isLoading = false
           this.router.navigate(["/dashboard"])
@@ -98,6 +115,22 @@ export class LoginComponent implements OnInit {
           this.errorMessage = error.message || "Login failed. Please check your credentials."
         })
     }
+  }
+
+  signInWithGoogle(): void {
+    this.isLoading = true
+    this.errorMessage = ""
+
+    this.authService
+      .signInWithGoogle()
+      .then((user) => {
+        this.isLoading = false
+        this.router.navigate(["/dashboard"])
+      })
+      .catch((error) => {
+        this.isLoading = false
+        this.errorMessage = error.message || "Google sign-in failed. Please try again."
+      })
   }
 
   onResetSubmit(): void {

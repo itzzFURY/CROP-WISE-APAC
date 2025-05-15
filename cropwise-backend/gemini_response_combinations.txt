@@ -1,0 +1,79 @@
+```json
+{
+  "suggestions": [
+    {
+      "cropName": "Lettuce",
+      "confidence": 75,
+      "reasonsForSelection": [
+        "Tolerates peaty soil with proper amendments",
+        "Suitable for cooler Australian climates, including Victoria",
+        "Multiple harvests possible within a year"
+      ],
+      "plantingTime": "Autumn and Spring",
+      "harvestTime": "Variable, depending on variety and planting time (60-90 days)",
+      "expectedYield": "10,000-15,000 heads per acre",
+      "waterRequirements": "Moderate, consistent moisture",
+      "fertilizers": ["Nitrogen-rich fertilizer", "Potassium-rich fertilizer"],
+      "pestManagement": ["Aphid control with insecticidal soap", "Slug and snail control with bait"],
+      "capitalRequired": "$2,000-$3,000 per acre",
+      "timeToHarvest": "2-3 months",
+      "additionalNotes": "Amend peaty soil with compost and sand for improved drainage and nutrient retention. Consider different lettuce varieties for staggered harvests."
+    },
+    {
+      "cropName": "Spinach",
+      "confidence": 70,
+      "reasonsForSelection": [
+        "Adaptable to peaty soils with proper amendments",
+        "Thrives in cooler temperatures",
+        "Relatively short growing season"
+      ],
+      "plantingTime": "Autumn and Spring",
+      "harvestTime": "40-50 days",
+      "expectedYield": "6,000-8,000 pounds per acre",
+      "waterRequirements": "Consistent moisture",
+      "fertilizers": ["Nitrogen-rich fertilizer", "Phosphorus-rich fertilizer"],
+      "pestManagement": ["Leafminer control with neem oil", "Aphid control with beneficial insects"],
+      "capitalRequired": "$1,500-$2,500 per acre",
+      "timeToHarvest": "1-2 months",
+      "additionalNotes": "Similar to lettuce, amend the soil for better drainage. Successive plantings can provide a continuous harvest."
+    },
+    {
+      "cropName": "Kale",
+      "confidence": 65,
+      "reasonsForSelection": [
+        "Tolerant of various soil types including peat with amendments",
+        "Cool-season crop suitable for Victoria's climate",
+        "Nutrient-rich and can improve soil health over time"
+      ],
+      "plantingTime": "Autumn and Spring",
+      "harvestTime": "50-70 days",
+      "expectedYield": "5,000-7,000 pounds per acre",
+      "waterRequirements": "Moderate, consistent moisture",
+      "fertilizers": ["Nitrogen-rich fertilizer", "Compost"],
+      "pestManagement": ["Cabbageworm control with Bacillus thuringiensis", "Aphid control with insecticidal soap"],
+      "capitalRequired": "$1,800-$2,800 per acre",
+      "timeToHarvest": "2-2.5 months",
+      "additionalNotes": "Kale can be harvested multiple times from the same plant, extending the harvest period."
+    }
+  ],
+  "analysis": "The peaty soil presents drainage challenges and requires amendments. The provided weather data is insufficient to determine the current season, which is crucial for accurate crop selection. Assuming a cool season based on the location and temperature, the suggested crops are suitable. Further soil testing and detailed weather information are recommended for optimal crop planning.",
+  "cropCombinations": [
+    {
+      "crops": [
+        {"cropName": "Lettuce", "percentage": 40},
+        {"cropName": "Spinach", "percentage": 30},
+        {"cropName": "Kale", "percentage": 30}
+      ],
+      "compatibilityScore": 70,
+      "compatibilityReasons": [
+        "Similar growing requirements (cool season, consistent moisture)",
+        "Different nutrient needs can minimize competition",
+        "Staggered planting and harvest times"
+      ],
+      "plantingSequence": "Lettuce first, followed by spinach and kale a few weeks later",
+      "rotationBenefits": "Rotating leafy greens can help prevent nutrient depletion and reduce pest and disease buildup in the soil.",
+      "additionalNotes": "Monitor soil moisture carefully and adjust irrigation as needed. Regular soil testing is recommended to ensure optimal nutrient levels."
+    }
+  ]
+}
+```

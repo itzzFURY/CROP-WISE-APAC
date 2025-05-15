@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core"
 import { HttpClient } from "@angular/common/http"
 import { type Observable, of } from "rxjs"
-import { catchError } from "rxjs/operators"
+import { catchError, map } from "rxjs/operators"
 
 export interface CropSuggestion {
   cropName: string
@@ -28,6 +28,8 @@ export interface GeminiResponse {
     forecast?: string
   }
   analysis: string
+  cropCombinations?: CropCombination[]
+  error?: string
 }
 
 export interface Farm {
@@ -50,6 +52,27 @@ export interface SavedSuggestion {
   weatherData: any
   analysis: string
   timestamp: string
+  cropCount?: number
+  cropCombinations?: CropCombination[]
+}
+
+export interface CropCombination {
+  crops: {
+    cropName: string
+    percentage: number
+  }[]
+  compatibilityScore: number
+  compatibilityReasons: string[]
+  plantingSequence: string
+  rotationBenefits: string
+  additionalNotes?: string
+}
+
+export interface ChatMessage {
+  text: string
+  sender: "user" | "bot"
+  timestamp: Date | string
+  farmId: string
 }
 
 @Injectable({
@@ -61,13 +84,41 @@ export class GeminiService {
   constructor(private http: HttpClient) {}
 
   // Get crop suggestions from Gemini API via Flask backend
-  getCropSuggestions(farmData: any): Observable<GeminiResponse> {
-    return this.http.post<GeminiResponse>(`${this.apiUrl}/crop-suggestions`, farmData)
+  getCropSuggestions(farmData: any, cropCount = 1): Observable<GeminiResponse> {
+    console.log(`Requesting crop suggestions with count: ${cropCount}`, farmData)
+    return this.http
+      .post<GeminiResponse>(`${this.apiUrl}/crop-suggestions`, {
+        ...farmData,
+        cropCount,
+      })
+      .pipe(
+        catchError((error) => {
+          console.error("Error in getCropSuggestions:", error)
+          // Return a default response with error information
+          return of({
+            suggestions: [],
+            weatherData: {
+              temperature: 25,
+              rainfall: 10,
+              humidity: 60,
+              season: "Unknown",
+            },
+            analysis: `Error getting crop suggestions: ${error.message || "Unknown error"}`,
+            cropCombinations: [],
+            error: error.message || "Failed to get crop suggestions",
+          })
+        }),
+      )
   }
 
   // Get farm data from Firebase
   getFarmData(userId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/farm-data/${userId}`)
+    return this.http.get(`${this.apiUrl}/farm-data/${userId}`).pipe(
+      catchError((error) => {
+        console.error("Error fetching farm data:", error)
+        return of([])
+      }),
+    )
   }
 
   // Get saved suggestions for a farm
@@ -82,42 +133,49 @@ export class GeminiService {
 
   // Save suggestions for a farm
   saveSuggestions(savedSuggestion: SavedSuggestion): Observable<any> {
-    return this.http.post(`${this.apiUrl}/saved-suggestions`, savedSuggestion)
+    return this.http.post(`${this.apiUrl}/saved-suggestions`, savedSuggestion).pipe(
+      catchError((error) => {
+        console.error("Error saving suggestions:", error)
+        return of({ error: "Failed to save suggestions" })
+      }),
+    )
   }
 
-  // Prepare the prompt for Gemini API
-  prepareGeminiPrompt(farmData: any, weatherData: any): string {
-    return `
-You are an agricultural expert AI assistant. Based on the following farm data and weather information, suggest the best crops to plant.
+  // Get chatbot response from Gemini API
+  getChatbotResponse(message: string, context: string): Observable<string> {
+    console.log("Sending chatbot request with context length:", context.length)
+    return this.http
+      .post<{ response: string }>(`${this.apiUrl}/chatbot`, {
+        message,
+        context,
+      })
+      .pipe(
+        catchError((error) => {
+          console.error("Error getting chatbot response:", error)
+          return of({ response: "I'm sorry, I encountered an error while processing your question. Please try again." })
+        }),
+        // Extract the response field from the response object
+        map((response: { response: string }) => response.response),
+      )
+  }
 
-FARM DATA:
-- Farm Size: ${farmData.farmSize} acres
-- Location: ${farmData.location}
-- Soil Type: ${farmData.soilType}
-- Previous Yield Performance: ${farmData.yieldPerformance}
-- Crop History: ${farmData.cropHistory}
+  // Get chat history for a user
+  getChatHistory(userId: string): Observable<ChatMessage[]> {
+    return this.http.get<ChatMessage[]>(`${this.apiUrl}/chat-history/${userId}`).pipe(
+      catchError((error) => {
+        console.error("Error fetching chat history:", error)
+        return of([])
+      }),
+    )
+  }
 
-WEATHER DATA:
-- Current Temperature: ${weatherData.temperature}°C
-- Rainfall: ${weatherData.rainfall} mm
-- Humidity: ${weatherData.humidity}%
-- Season: ${weatherData.season}
-
-Please provide 3-5 crop suggestions with the following details for each:
-1. Crop Name
-2. Confidence Rate (as a percentage)
-3. Reasons for Selection (list at least 3 specific reasons)
-4. Planting Time
-5. Harvest Time
-6. Expected Yield
-7. Water Requirements
-8. Recommended Fertilizers (list at least 2)
-9. Pest Management Strategies (list at least 2)
-10. Capital Required (estimated cost per acre)
-11. Time to Harvest (in days/months)
-12. Additional Notes or Considerations
-
-Format your response as structured data that can be parsed as JSON.
-`
+  // Save chat history for a user
+  saveChatHistory(userId: string, chatHistory: ChatMessage[]): Observable<any> {
+    return this.http.post(`${this.apiUrl}/chat-history/${userId}`, { chatHistory }).pipe(
+      catchError((error) => {
+        console.error("Error saving chat history:", error)
+        return of({ error: "Failed to save chat history" })
+      }),
+    )
   }
 }
