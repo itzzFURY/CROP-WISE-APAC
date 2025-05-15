@@ -106,3 +106,75 @@ ANALYSIS: The peaty soil presents drainage challenges and requires amendments. T
 
 CROP COMBINATIONS COUNT: 1
 
+
+
+=== DEBUG LOG 2025-05-15T16:37:55.456646 ===
+FARM DATA: {
+  "cropHistory": "rice",
+  "farmName": "farm1",
+  "farmSize": 19,
+  "id": "ec894951-bc56-41c3-9b52-0ea152c79c10",
+  "latitude": "-37.7192448",
+  "location": "Biological Sciences 1, 1 Biology Dr, Bundoora VIC 3083, Australia",
+  "longitude": "145.047552",
+  "soilType": "Peaty",
+  "timestamp": "2025-05-15T16:37:12.014853",
+  "userId": "4kFEQE36lhYeDKxJNLBBQ7VWZ4V2",
+  "yieldPerformance": "bad",
+  "cropCount": 2
+}
+
+CROP COUNT: 2
+
+WEATHER DATA: {
+  "temperature": 25,
+  "rainfall": 10,
+  "humidity": 60,
+  "season": "Unknown",
+  "forecast": "Unknown"
+}
+
+RESPONSE DATA KEYS: ['suggestions', 'weatherData', 'analysis', 'cropCombinations']
+
+SUGGESTIONS COUNT: 2
+
+ANALYSIS: The farm's peaty soil presents drainage and nutrient challenges. The previous rice crop's poor performance suggests potential issues with soil acidity or disease. The current weather data is insufficient to determine the season, but the location suggests a temperate climate.
+
+CROP COMBINATIONS COUNT: 1
+
+
+
+=== DEBUG LOG 2025-05-15T17:18:47.339169 ===
+FARM DATA: {
+  "cropHistory": "rice",
+  "farmName": "farm1",
+  "farmSize": 19,
+  "id": "ec894951-bc56-41c3-9b52-0ea152c79c10",
+  "latitude": "-37.7192448",
+  "location": "Biological Sciences 1, 1 Biology Dr, Bundoora VIC 3083, Australia",
+  "longitude": "145.047552",
+  "soilType": "Peaty",
+  "timestamp": "2025-05-15T17:18:08.936601",
+  "userId": "4kFEQE36lhYeDKxJNLBBQ7VWZ4V2",
+  "yieldPerformance": "bad",
+  "cropCount": 3
+}
+
+CROP COUNT: 3
+
+WEATHER DATA: {
+  "temperature": 25,
+  "rainfall": 10,
+  "humidity": 60,
+  "season": "Unknown",
+  "forecast": "Unknown"
+}
+
+RESPONSE DATA KEYS: ['suggestions', 'weatherData', 'analysis', 'cropCombinations']
+
+SUGGESTIONS COUNT: 3
+
+ANALYSIS: The farm's peaty soil presents both challenges and opportunities. Proper soil amendment is crucial for success. The previous bad yield with rice suggests drainage or nutrient issues that need to be addressed. The current weather conditions seem moderate, but more detailed seasonal information is required for optimal crop selection.
+
+CROP COMBINATIONS COUNT: 2
+

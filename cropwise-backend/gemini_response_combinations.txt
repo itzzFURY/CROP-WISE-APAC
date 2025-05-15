@@ -2,77 +2,92 @@
 {
   "suggestions": [
     {
-      "cropName": "Lettuce",
+      "cropName": "Leafy Greens (e.g., Lettuce, Spinach)",
       "confidence": 75,
       "reasonsForSelection": [
-        "Tolerates peaty soil with proper amendments",
-        "Suitable for cooler Australian climates, including Victoria",
-        "Multiple harvests possible within a year"
+        "Peaty soil, when amended, can provide good drainage and aeration for leafy greens.",
+        "Leafy greens have relatively short growing cycles, allowing for multiple harvests and quicker returns after a previous bad yield.",
+        "The moderate temperature and humidity are generally suitable for leafy green growth."
       ],
       "plantingTime": "Autumn and Spring",
-      "harvestTime": "Variable, depending on variety and planting time (60-90 days)",
-      "expectedYield": "10,000-15,000 heads per acre",
-      "waterRequirements": "Moderate, consistent moisture",
-      "fertilizers": ["Nitrogen-rich fertilizer", "Potassium-rich fertilizer"],
-      "pestManagement": ["Aphid control with insecticidal soap", "Slug and snail control with bait"],
-      "capitalRequired": "$2,000-$3,000 per acre",
-      "timeToHarvest": "2-3 months",
-      "additionalNotes": "Amend peaty soil with compost and sand for improved drainage and nutrient retention. Consider different lettuce varieties for staggered harvests."
+      "harvestTime": "Variable, depending on the specific leafy green, generally 6-8 weeks after planting",
+      "expectedYield": "5-10 tons per acre (variable depending on the specific crop and management)",
+      "waterRequirements": "Consistent moisture, approximately 1-1.5 inches per week",
+      "fertilizers": ["Nitrogen-rich fertilizer", "Compost"],
+      "pestManagement": ["Regular monitoring for pests", "Use of organic insecticides like neem oil"],
+      "capitalRequired": "$2,000 - $4,000 per acre",
+      "timeToHarvest": "40-60 days",
+      "additionalNotes": "Amend peaty soil with compost and other organic matter to improve its structure and nutrient content. Consider succession planting for continuous harvests."
     },
     {
-      "cropName": "Spinach",
+      "cropName": "Brassicas (e.g., Cabbage, Broccoli)",
       "confidence": 70,
       "reasonsForSelection": [
-        "Adaptable to peaty soils with proper amendments",
-        "Thrives in cooler temperatures",
-        "Relatively short growing season"
+        "Brassicas can tolerate slightly acidic conditions which can be common in peaty soils.",
+        "They offer diversification from the previous rice crop.",
+        "The current temperature is within a suitable range for brassica growth."
       ],
       "plantingTime": "Autumn and Spring",
-      "harvestTime": "40-50 days",
-      "expectedYield": "6,000-8,000 pounds per acre",
-      "waterRequirements": "Consistent moisture",
-      "fertilizers": ["Nitrogen-rich fertilizer", "Phosphorus-rich fertilizer"],
-      "pestManagement": ["Leafminer control with neem oil", "Aphid control with beneficial insects"],
-      "capitalRequired": "$1,500-$2,500 per acre",
-      "timeToHarvest": "1-2 months",
-      "additionalNotes": "Similar to lettuce, amend the soil for better drainage. Successive plantings can provide a continuous harvest."
+      "harvestTime": "Variable, depending on the specific brassica, generally 70-100 days after planting",
+      "expectedYield": "5-8 tons per acre (variable depending on the specific crop and management)",
+      "waterRequirements": "Consistent moisture, about 1 inch per week",
+      "fertilizers": ["Balanced NPK fertilizer", "Boron supplements"],
+      "pestManagement": ["Crop rotation to prevent clubroot", "Monitoring and control of cabbage worms"],
+      "capitalRequired": "$2,500 - $4,500 per acre",
+      "timeToHarvest": "70-100 days",
+      "additionalNotes": "Ensure adequate calcium in the soil to prevent tip burn in some brassicas."
     },
     {
-      "cropName": "Kale",
+      "cropName": "Root Vegetables (e.g., Carrots, Beetroot)",
       "confidence": 65,
       "reasonsForSelection": [
-        "Tolerant of various soil types including peat with amendments",
-        "Cool-season crop suitable for Victoria's climate",
-        "Nutrient-rich and can improve soil health over time"
+        "Well-drained peaty soil, after amendment, can be suitable for root vegetable growth.",
+        "Root vegetables offer further diversification and different nutrient needs compared to the previous crop.",
+        "These crops can generally tolerate a range of temperatures including the current conditions."
       ],
       "plantingTime": "Autumn and Spring",
-      "harvestTime": "50-70 days",
-      "expectedYield": "5,000-7,000 pounds per acre",
-      "waterRequirements": "Moderate, consistent moisture",
-      "fertilizers": ["Nitrogen-rich fertilizer", "Compost"],
-      "pestManagement": ["Cabbageworm control with Bacillus thuringiensis", "Aphid control with insecticidal soap"],
-      "capitalRequired": "$1,800-$2,800 per acre",
-      "timeToHarvest": "2-2.5 months",
-      "additionalNotes": "Kale can be harvested multiple times from the same plant, extending the harvest period."
+      "harvestTime": "Variable, carrots around 70-80 days, beetroot 50-60 days",
+      "expectedYield": "6-12 tons per acre (variable depending on the specific crop and management)",
+      "waterRequirements": "Consistent moisture, about 1 inch per week",
+      "fertilizers": ["Phosphorus and potassium-rich fertilizer", "Compost"],
+      "pestManagement": ["Crop rotation to manage nematodes", "Monitoring for carrot rust flies and other pests"],
+      "capitalRequired": "$2,000 - $4,000 per acre",
+      "timeToHarvest": "50-80 days",
+      "additionalNotes": "Ensure the soil is loose and free of rocks for optimal root development."
     }
   ],
-  "analysis": "The peaty soil presents drainage challenges and requires amendments. The provided weather data is insufficient to determine the current season, which is crucial for accurate crop selection. Assuming a cool season based on the location and temperature, the suggested crops are suitable. Further soil testing and detailed weather information are recommended for optimal crop planning.",
+  "analysis": "The farm's peaty soil presents both challenges and opportunities. Proper soil amendment is crucial for success. The previous bad yield with rice suggests drainage or nutrient issues that need to be addressed. The current weather conditions seem moderate, but more detailed seasonal information is required for optimal crop selection.",
   "cropCombinations": [
     {
       "crops": [
-        {"cropName": "Lettuce", "percentage": 40},
-        {"cropName": "Spinach", "percentage": 30},
-        {"cropName": "Kale", "percentage": 30}
+        {"cropName": "Leafy Greens", "percentage": 40},
+        {"cropName": "Brassicas", "percentage": 30},
+        {"cropName": "Root Vegetables", "percentage": 30}
       ],
       "compatibilityScore": 70,
       "compatibilityReasons": [
-        "Similar growing requirements (cool season, consistent moisture)",
-        "Different nutrient needs can minimize competition",
-        "Staggered planting and harvest times"
+        "These crops have different nutrient needs, reducing competition.",
+        "Their staggered harvest times allow for efficient labor management.",
+        "They offer market diversity."
       ],
-      "plantingSequence": "Lettuce first, followed by spinach and kale a few weeks later",
-      "rotationBenefits": "Rotating leafy greens can help prevent nutrient depletion and reduce pest and disease buildup in the soil.",
-      "additionalNotes": "Monitor soil moisture carefully and adjust irrigation as needed. Regular soil testing is recommended to ensure optimal nutrient levels."
+      "plantingSequence": "Leafy greens can be planted first, followed by brassicas and then root vegetables, allowing for sequential harvests.",
+      "rotationBenefits": "Rotating these crops helps to break pest and disease cycles, improve soil health, and reduce the need for specific nutrient inputs.",
+      "additionalNotes": "Monitor soil nutrient levels throughout the growing season and adjust fertilization as needed."
+    },
+    {
+      "crops": [
+        {"cropName": "Leafy Greens", "percentage": 50},
+        {"cropName": "Root Vegetables", "percentage": 50}
+      ],
+      "compatibilityScore": 65,
+      "compatibilityReasons": [
+        "Simplified crop management with only two crop types.",
+        "Complementary nutrient needs.",
+        "Potential for intercropping some leafy greens and root vegetables."
+      ],
+      "plantingSequence": "Leafy greens can be planted initially, with root vegetables following a few weeks later for staggered harvests.",
+      "rotationBenefits": "Rotating these two groups helps prevent soil nutrient depletion and manage pest and disease pressures.",
+      "additionalNotes": "Careful planning and monitoring are essential for successful intercropping."
     }
   ]
 }
