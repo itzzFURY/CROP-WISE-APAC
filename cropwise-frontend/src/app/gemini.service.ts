@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core"
 import { HttpClient } from "@angular/common/http"
 import { type Observable, of } from "rxjs"
 import { catchError, map } from "rxjs/operators"
+import { API_CONFIG } from "./constants"
 
 export interface CropSuggestion {
   cropName: string
@@ -79,7 +80,7 @@ export interface ChatMessage {
   providedIn: "root",
 })
 export class GeminiService {
-  private apiUrl = "http://localhost:5000/api" // Your Flask backend URL
+  private apiUrl = API_CONFIG.BASE_URL // Use the base URL from constants
 
   constructor(private http: HttpClient) {}
 
@@ -87,7 +88,7 @@ export class GeminiService {
   getCropSuggestions(farmData: any, cropCount = 1): Observable<GeminiResponse> {
     console.log(`Requesting crop suggestions with count: ${cropCount}`, farmData)
     return this.http
-      .post<GeminiResponse>(`${this.apiUrl}/crop-suggestions`, {
+      .post<GeminiResponse>(`${this.apiUrl}${API_CONFIG.ENDPOINTS.CROP_SUGGESTIONS}`, {
         ...farmData,
         cropCount,
       })
@@ -113,7 +114,7 @@ export class GeminiService {
 
   // Get farm data from Firebase
   getFarmData(userId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/farm-data/${userId}`).pipe(
+    return this.http.get(`${this.apiUrl}${API_CONFIG.ENDPOINTS.FARM_DATA_BY_ID(userId)}`).pipe(
       catchError((error) => {
         console.error("Error fetching farm data:", error)
         return of([])
@@ -123,7 +124,7 @@ export class GeminiService {
 
   // Get saved suggestions for a farm
   getSavedSuggestions(farmId: string): Observable<SavedSuggestion | null> {
-    return this.http.get<SavedSuggestion>(`${this.apiUrl}/saved-suggestions/${farmId}`).pipe(
+    return this.http.get<SavedSuggestion>(`${this.apiUrl}${API_CONFIG.ENDPOINTS.SAVED_SUGGESTIONS_BY_ID(farmId)}`).pipe(
       catchError((error) => {
         console.error("Error fetching saved suggestions:", error)
         return of(null)
@@ -133,7 +134,7 @@ export class GeminiService {
 
   // Save suggestions for a farm
   saveSuggestions(savedSuggestion: SavedSuggestion): Observable<any> {
-    return this.http.post(`${this.apiUrl}/saved-suggestions`, savedSuggestion).pipe(
+    return this.http.post(`${this.apiUrl}${API_CONFIG.ENDPOINTS.SAVED_SUGGESTIONS}`, savedSuggestion).pipe(
       catchError((error) => {
         console.error("Error saving suggestions:", error)
         return of({ error: "Failed to save suggestions" })
@@ -145,7 +146,7 @@ export class GeminiService {
   getChatbotResponse(message: string, context: string): Observable<string> {
     console.log("Sending chatbot request with context length:", context.length)
     return this.http
-      .post<{ response: string }>(`${this.apiUrl}/chatbot`, {
+      .post<{ response: string }>(`${this.apiUrl}${API_CONFIG.ENDPOINTS.CHATBOT}`, {
         message,
         context,
       })
@@ -161,7 +162,7 @@ export class GeminiService {
 
   // Get chat history for a user
   getChatHistory(userId: string): Observable<ChatMessage[]> {
-    return this.http.get<ChatMessage[]>(`${this.apiUrl}/chat-history/${userId}`).pipe(
+    return this.http.get<ChatMessage[]>(`${this.apiUrl}${API_CONFIG.ENDPOINTS.CHAT_HISTORY(userId)}`).pipe(
       catchError((error) => {
         console.error("Error fetching chat history:", error)
         return of([])
@@ -171,7 +172,7 @@ export class GeminiService {
 
   // Save chat history for a user
   saveChatHistory(userId: string, chatHistory: ChatMessage[]): Observable<any> {
-    return this.http.post(`${this.apiUrl}/chat-history/${userId}`, { chatHistory }).pipe(
+    return this.http.post(`${this.apiUrl}${API_CONFIG.ENDPOINTS.CHAT_HISTORY(userId)}`, { chatHistory }).pipe(
       catchError((error) => {
         console.error("Error saving chat history:", error)
         return of({ error: "Failed to save chat history" })

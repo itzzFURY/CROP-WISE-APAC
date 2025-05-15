@@ -3,6 +3,7 @@ import { HttpClient } from "@angular/common/http"
 import type { Observable } from "rxjs"
 import { getDatabase, ref, push, set, get, child } from "firebase/database"
 import { app } from "./app/firebase.config"
+import { API_CONFIG } from "./app/constants"
 
 export interface FarmData {
   userId: string
@@ -19,19 +20,19 @@ export interface FarmData {
   providedIn: "root",
 })
 export class FarmService {
-  private apiUrl = "http://localhost:5000/api" // Your Flask backend URL
+  private apiUrl = API_CONFIG.BASE_URL // Use the base URL from constants
   private database = getDatabase(app)
 
   constructor(private http: HttpClient) {}
 
   // Save farm data via Flask backend
   saveFarmData(farmData: FarmData): Observable<any> {
-    return this.http.post(`${this.apiUrl}/farm-data`, farmData)
+    return this.http.post(`${this.apiUrl}${API_CONFIG.ENDPOINTS.FARM_DATA}`, farmData)
   }
 
   // Get farm data for a user via Flask backend
   getFarmDataByUserId(userId: string): Observable<FarmData[]> {
-    return this.http.get<FarmData[]>(`${this.apiUrl}/farm-data/${userId}`)
+    return this.http.get<FarmData[]>(`${this.apiUrl}${API_CONFIG.ENDPOINTS.FARM_DATA_BY_ID(userId)}`)
   }
 
   // Direct Firebase methods (alternative if Flask backend is not ready)

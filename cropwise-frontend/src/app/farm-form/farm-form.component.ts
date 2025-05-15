@@ -5,6 +5,7 @@ import { HttpClient, HttpClientModule } from "@angular/common/http"
 import { NavbarComponent } from "../navbar/navbar.component"
 import { Router } from "@angular/router"
 import { AuthService } from "../auth.service"
+import { API_CONFIG } from "../constants"
 
 interface Farm {
   id: string
@@ -41,6 +42,7 @@ export class FarmFormComponent implements OnInit {
   showForm = false // Start with list view, not form
   isEditing = false
   currentFarmId: string | null = null
+  private apiUrl = API_CONFIG.BASE_URL // Use the base URL from constants
 
   constructor(
     private fb: FormBuilder,
@@ -94,7 +96,7 @@ export class FarmFormComponent implements OnInit {
 
     console.log("Loading farms for user:", this.userId)
 
-    this.http.get<Farm[]>(`http://localhost:5000/api/farm-data/${this.userId}`).subscribe({
+    this.http.get<Farm[]>(`${this.apiUrl}${API_CONFIG.ENDPOINTS.FARM_DATA_BY_ID(this.userId)}`).subscribe({
       next: (farms) => {
         console.log("Farms loaded:", farms)
         this.farms = farms
@@ -143,23 +145,25 @@ export class FarmFormComponent implements OnInit {
       console.log("Deleting farm:", farm)
 
       // We need to pass the userId as a query parameter
-      this.http.delete(`http://localhost:5000/api/farm-data/${farm.id}?userId=${this.userId}`).subscribe({
-        next: () => {
-          console.log("Farm deleted successfully")
-          this.successMessage = `Farm "${farm.farmName}" deleted successfully`
-          this.submitSuccess = true
-          setTimeout(() => {
-            this.submitSuccess = false
-          }, 3000)
-          // Remove farm from local array
-          this.farms = this.farms.filter((f) => f.id !== farm.id)
-        },
-        error: (error) => {
-          console.error("Error deleting farm:", error)
-          this.errorMessage = "Failed to delete farm. Please try again."
-          this.submitError = true
-        },
-      })
+      this.http
+        .delete(`${this.apiUrl}${API_CONFIG.ENDPOINTS.FARM_DATA_DELETE(farm.id)}?userId=${this.userId}`)
+        .subscribe({
+          next: () => {
+            console.log("Farm deleted successfully")
+            this.successMessage = `Farm "${farm.farmName}" deleted successfully`
+            this.submitSuccess = true
+            setTimeout(() => {
+              this.submitSuccess = false
+            }, 3000)
+            // Remove farm from local array
+            this.farms = this.farms.filter((f) => f.id !== farm.id)
+          },
+          error: (error) => {
+            console.error("Error deleting farm:", error)
+            this.errorMessage = "Failed to delete farm. Please try again."
+            this.submitError = true
+          },
+        })
     }
   }
 
@@ -234,31 +238,33 @@ export class FarmFormComponent implements OnInit {
       if (this.isEditing && this.currentFarmId) {
         // Update existing farm
         console.log("Updating farm:", this.currentFarmId)
-        this.http.put(`http://localhost:5000/api/farm-data/${this.currentFarmId}`, formData).subscribe({
-          next: (response: any) => {
-            console.log("Farm data updated successfully:", response)
-            this.successMessage = "Farm updated successfully"
-            this.submitSuccess = true
-            this.loadFarms() // Refresh farms list
+        this.http
+          .put(`${this.apiUrl}${API_CONFIG.ENDPOINTS.FARM_DATA_UPDATE(this.currentFarmId)}`, formData)
+          .subscribe({
+            next: (response: any) => {
+              console.log("Farm data updated successfully:", response)
+              this.successMessage = "Farm updated successfully"
+              this.submitSuccess = true
+              this.loadFarms() // Refresh farms list
 
-            // Reset form and go back to list view after a delay
-            setTimeout(() => {
-              this.showForm = false
-              this.isEditing = false
-              this.currentFarmId = null
-              this.initForm()
-            }, 1500)
-          },
-          error: (error: { message: string }) => {
-            console.error("Error updating farm data:", error)
-            this.submitError = true
-            this.errorMessage = error.message || "Failed to update farm data. Please try again."
-          },
-        })
+              // Reset form and go back to list view after a delay
+              setTimeout(() => {
+                this.showForm = false
+                this.isEditing = false
+                this.currentFarmId = null
+                this.initForm()
+              }, 1500)
+            },
+            error: (error: { message: string }) => {
+              console.error("Error updating farm data:", error)
+              this.submitError = true
+              this.errorMessage = error.message || "Failed to update farm data. Please try again."
+            },
+          })
       } else {
         // Create new farm
         console.log("Creating new farm")
-        this.http.post("http://localhost:5000/api/farm-data", formData).subscribe({
+        this.http.post(`${this.apiUrl}${API_CONFIG.ENDPOINTS.FARM_DATA}`, formData).subscribe({
           next: (response: any) => {
             console.log("Farm data saved successfully:", response)
             this.successMessage = "Farm added successfully"
