@@ -31,6 +31,6 @@ import { AuthGuard } from "./auth.guard"
     DashboardComponent,
   ],
   providers: [AuthService, GeminiService, AuthGuard],
-  // Removed bootstrap array as AppComponent is a standalone component
+  
 })
 export class AppModule {}

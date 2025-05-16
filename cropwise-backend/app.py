@@ -17,7 +17,6 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 # Firebase configuration
-# Initialize Firebase Admin SDK with your service account credentials
 cred = credentials.Certificate("./firebase_key.json")  
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://crop-wise-2407a-default-rtdb.asia-southeast1.firebasedatabase.app',
@@ -114,8 +113,6 @@ def get_default_weather():
         'forecast': "Unknown"
     }
 
-# Fix for the format specifier error in the Flask app
-# Replace the JSON template in the prompt strings with a properly escaped version
 
 def call_gemini_api(farm_data, weather_data):
     """Call the Gemini API to generate crop suggestions"""
@@ -181,8 +178,7 @@ DO NOT include any text before or after the JSON.
 Ensure your JSON has no trailing commas.
 """
 
-    # Rest of the function remains the same...
-
+    
     print("Sending prompt to Gemini API:", prompt[:500] + "...")
 
     # Call Gemini API
@@ -372,8 +368,7 @@ DO NOT include any text before or after the JSON.
 Ensure your JSON has no trailing commas.
 """
 
-    # Rest of the function remains the same...
-
+    
     print("Sending prompt to Gemini API:", prompt[:500] + "...")
 
     # Call Gemini API
