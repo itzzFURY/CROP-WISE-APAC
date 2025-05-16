@@ -17,7 +17,6 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 # Firebase configuration
-# Initialize Firebase Admin SDK with your service account credentials
 cred = credentials.Certificate("./firebase_key.json")  
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://crop-wise-2407a-default-rtdb.asia-southeast1.firebasedatabase.app',
