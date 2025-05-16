@@ -1,15 +1,70 @@
 <app-navbar></app-navbar>
 
 <div class="support-container">
-  <div class="support-header">
-    <h1>Support Center</h1>
-    <p>Get help with CropWise and report issues</p>
+  <div class="page-header">
+    <h2><fa-icon [icon]="faHeadset" class="header-icon"></fa-icon> Support & Help Center</h2>
+    <p>Get assistance and report any issues with your CropWise experience</p>
   </div>
-  
+
+  <div class="support-sections">
+    <!-- FAQ Section -->
+    <div class="support-section">
+      <h2><fa-icon [icon]="faQuestionCircle"></fa-icon> Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item" *ngFor="let faq of faqs">
+          <div class="faq-question" (click)="toggleFaq(faq)">
+            {{ faq.question }}
+            <fa-icon [icon]="faq.isOpen ? faChevronUp : faChevronDown" class="faq-toggle" [class.open]="faq.isOpen"></fa-icon>
+          </div>
+          <div class="faq-answer" [class.open]="faq.isOpen">
+            <p>{{ faq.answer }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="support-section">
+      <h2><fa-icon [icon]="faEnvelope"></fa-icon> Contact Us</h2>
+      <div class="contact-info">
+        <div class="contact-item">
+          <div class="contact-icon">
+            <fa-icon [icon]="faEnvelope"></fa-icon>
+          </div>
+          <div class="contact-details">
+            <h3>Email Support</h3>
+            <a href="mailto:support&#64;cropwise.com" class="contact-email">support&#64;cropwise.com</a>
+            <p class="contact-hours">Response within 24 hours</p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">
+            <fa-icon [icon]="faPhone"></fa-icon>
+          </div>
+          <div class="contact-details">
+            <h3>Phone Support</h3>
+            <a href="tel:+15551234567" class="contact-phone">+1 (555) 123-4567</a>
+            <p class="contact-hours">Mon-Fri, 9:00 AM - 5:00 PM EST</p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">
+            <fa-icon [icon]="faComments"></fa-icon>
+          </div>
+          <div class="contact-details">
+            <h3>Live Chat</h3>
+            <p>Available for premium users</p>
+            <p class="contact-hours">24/7 support</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Report Issue Section -->
   <div class="report-section">
-    <h2>Report an Issue</h2>
-    <p>Please use the form below to report any bugs or issues you encounter while using CropWise.</p>
+    <h2><fa-icon [icon]="faBug"></fa-icon> Report an Issue</h2>
+    <p>Please use the form below to report any bugs or issues you encounter while using CropWise. Our team will review your submission and get back to you as soon as possible.</p>
     
     <div class="google-form-container">
       <iframe [src]="googleFormUrl" width="100%" height="700" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>

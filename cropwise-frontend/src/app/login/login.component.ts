@@ -3,15 +3,60 @@ import { CommonModule } from "@angular/common"
 import { FormsModule, ReactiveFormsModule, FormBuilder, type FormGroup, Validators } from "@angular/forms"
 import { Router } from "@angular/router"
 import { AuthService } from "../auth.service"
+import { trigger, transition, style, animate, state } from '@angular/animations'
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome'
+import { faEye, faEyeSlash, faEnvelope, faLock, faUser, faKey, faArrowLeft, faPaperPlane, faSpinner, faSignInAlt, faUserPlus, faExclamationCircle, faCheckCircle, faQuestionCircle } from '@fortawesome/free-solid-svg-icons'
 
 @Component({
   selector: "app-login",
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, FontAwesomeModule],
   templateUrl: "./login.component.html",
   styleUrls: ["./login.component.css"],
+  animations: [
+    trigger('fadeInUp', [
+      transition(':enter', [
+        style({ transform: 'translateY(20px)', opacity: 0 }),
+        animate('0.4s ease-out', style({ transform: 'translateY(0)', opacity: 1 }))
+      ])
+    ]),
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('0.3s ease-out', style({ opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('0.3s ease-in', style({ opacity: 0 }))
+      ])
+    ]),
+    trigger('slideInOut', [
+      transition(':enter', [
+        style({ height: 0, opacity: 0 }),
+        animate('0.3s ease-out', style({ height: '*', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('0.3s ease-in', style({ height: 0, opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class LoginComponent implements OnInit {
+  // Font Awesome icons
+  faEye = faEye;
+  faEyeSlash = faEyeSlash;
+  faEnvelope = faEnvelope;
+  faLock = faLock;
+  faUser = faUser;
+  faKey = faKey;
+  faArrowLeft = faArrowLeft;
+  faPaperPlane = faPaperPlane;
+  faSpinner = faSpinner;
+  faSignInAlt = faSignInAlt;
+  faUserPlus = faUserPlus;
+  faExclamationCircle = faExclamationCircle;
+  faCheckCircle = faCheckCircle;
+  faQuestionCircle = faQuestionCircle;
+
   authForm: FormGroup
   resetForm: FormGroup
   isSignUp = false
@@ -20,6 +65,8 @@ export class LoginComponent implements OnInit {
   showResetForm = false
   resetSuccess = false
   resetError = false
+  showPassword = false
+  showConfirmPassword = false
 
   constructor(
     private fb: FormBuilder,
@@ -165,5 +212,13 @@ export class LoginComponent implements OnInit {
         this.resetError = true
         this.errorMessage = error.message || "Failed to send password reset email. Please try again."
       })
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword
+  }
+
+  toggleConfirmPasswordVisibility(): void {
+    this.showConfirmPassword = !this.showConfirmPassword
   }
 }

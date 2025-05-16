@@ -1,18 +1,18 @@
 <app-navbar></app-navbar>
 
 <div class="account-container">
-  <div class="account-header">
-    <h1>Account Settings</h1>
-    <p>Manage your account information</p>
+  <div class="page-header">
+    <h2><fa-icon [icon]="faUserCircle" class="header-icon"></fa-icon> Account Settings</h2>
+    <p>Manage your account information and preferences</p>
   </div>
   
   <div class="account-info">
     <div class="info-item">
-      <span class="label">Email:</span>
+      <span class="label"><fa-icon [icon]="faEnvelope"></fa-icon> Email:</span>
       <span class="value">{{ userEmail }}</span>
     </div>
     <div class="info-item">
-      <span class="label">Username:</span>
+      <span class="label"><fa-icon [icon]="faUser"></fa-icon> Username:</span>
       <span class="value">{{ username || 'Not set' }}</span>
     </div>
   </div>
@@ -20,12 +20,12 @@
   <div class="account-sections">
     <!-- Username Update Section -->
     <div class="account-section">
-      <h2>Update Username</h2>
+      <h2><fa-icon [icon]="faUserEdit"></fa-icon> Update Username</h2>
       <p>Change your display name that appears throughout the application.</p>
       
       <form [formGroup]="usernameForm" (ngSubmit)="onUsernameSubmit()">
         <div class="form-group">
-          <label for="username">New Username</label>
+          <label for="username"><fa-icon [icon]="faUserTag"></fa-icon> New Username</label>
           <input 
             type="text" 
             id="username" 
@@ -33,15 +33,18 @@
             placeholder="Enter new username"
           >
           <div *ngIf="usernameForm.get('username')?.invalid && usernameForm.get('username')?.touched" class="error-message">
+            <fa-icon [icon]="faExclamationCircle"></fa-icon>
             Username must be at least 3 characters
           </div>
         </div>
         
         <div *ngIf="usernameSuccess" class="success-alert">
+          <fa-icon [icon]="faCheckCircle"></fa-icon>
           Username updated successfully!
         </div>
         
         <div *ngIf="usernameError" class="error-alert">
+          <fa-icon [icon]="faExclamationTriangle"></fa-icon>
           {{ usernameError }}
         </div>
         
@@ -49,6 +52,7 @@
           type="submit" 
           class="submit-button" 
           [disabled]="usernameForm.invalid || isLoadingUsername">
+          <fa-icon [icon]="isLoadingUsername ? faSpinner : faSave"></fa-icon>
           {{ isLoadingUsername ? 'Updating...' : 'Update Username' }}
         </button>
       </form>
@@ -56,12 +60,12 @@
     
     <!-- Password Update Section -->
     <div class="account-section">
-      <h2>Change Password</h2>
+      <h2><fa-icon [icon]="faLock"></fa-icon> Change Password</h2>
       <p>Update your password to keep your account secure.</p>
       
       <form [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()">
         <div class="form-group">
-          <label for="currentPassword">Current Password</label>
+          <label for="currentPassword"><fa-icon [icon]="faKey"></fa-icon> Current Password</label>
           <input 
             type="password" 
             id="currentPassword" 
@@ -69,12 +73,13 @@
             placeholder="Enter current password"
           >
           <div *ngIf="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched" class="error-message">
+            <fa-icon [icon]="faExclamationCircle"></fa-icon>
             Current password is required
           </div>
         </div>
         
         <div class="form-group">
-          <label for="newPassword">New Password</label>
+          <label for="newPassword"><fa-icon [icon]="faLock"></fa-icon> New Password</label>
           <input 
             type="password" 
             id="newPassword" 
@@ -82,12 +87,13 @@
             placeholder="Enter new password"
           >
           <div *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched" class="error-message">
+            <fa-icon [icon]="faExclamationCircle"></fa-icon>
             New password must be at least 6 characters
           </div>
         </div>
         
         <div class="form-group">
-          <label for="confirmPassword">Confirm New Password</label>
+          <label for="confirmPassword"><fa-icon [icon]="faCheckCircle"></fa-icon> Confirm New Password</label>
           <input 
             type="password" 
             id="confirmPassword" 
@@ -95,18 +101,22 @@
             placeholder="Confirm new password"
           >
           <div *ngIf="passwordForm.get('confirmPassword')?.invalid && passwordForm.get('confirmPassword')?.touched" class="error-message">
+            <fa-icon [icon]="faExclamationCircle"></fa-icon>
             Please confirm your new password
           </div>
           <div *ngIf="passwordForm.hasError('mismatch') && passwordForm.get('confirmPassword')?.touched" class="error-message">
+            <fa-icon [icon]="faExclamationCircle"></fa-icon>
             Passwords do not match
           </div>
         </div>
         
         <div *ngIf="passwordSuccess" class="success-alert">
+          <fa-icon [icon]="faCheckCircle"></fa-icon>
           Password updated successfully!
         </div>
         
         <div *ngIf="passwordError" class="error-alert">
+          <fa-icon [icon]="faExclamationTriangle"></fa-icon>
           {{ passwordError }}
         </div>
         
@@ -114,6 +124,7 @@
           type="submit" 
           class="submit-button" 
           [disabled]="passwordForm.invalid || isLoadingPassword">
+          <fa-icon [icon]="isLoadingPassword ? faSpinner : faSave"></fa-icon>
           {{ isLoadingPassword ? 'Updating...' : 'Update Password' }}
         </button>
       </form>

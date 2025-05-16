@@ -6,6 +6,21 @@ import { NavbarComponent } from "../navbar/navbar.component"
 import { Router } from "@angular/router"
 import { AuthService } from "../auth.service"
 import { API_CONFIG } from "../constants"
+import { FarmService } from '../services/farm.service'
+import { 
+  faPlus, 
+  faEdit, 
+  faTrash, 
+  faArrowLeft, 
+  faMapMarkerAlt,
+  faSearch,
+  faCheckCircle,
+  faExclamationCircle,
+  faSave,
+  faLeaf
+} from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome'
+import { FormsModule } from "@angular/forms"
 
 interface Farm {
   id: string
@@ -24,7 +39,7 @@ interface Farm {
 @Component({
   selector: "app-farm-form",
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HttpClientModule, NavbarComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, HttpClientModule, NavbarComponent, FontAwesomeModule],
   templateUrl: "./farm-form.component.html",
   styleUrls: ["./farm-form.component.css"],
 })
@@ -38,17 +53,32 @@ export class FarmFormComponent implements OnInit {
   successMessage = ""
   http: HttpClient
   farms: Farm[] = []
+  filteredFarms: Farm[] = []
   loading = true // Start with loading state
   showForm = false // Start with list view, not form
   isEditing = false
   currentFarmId: string | null = null
   private apiUrl = API_CONFIG.BASE_URL // Use the base URL from constants
+  searchQuery = ''
+
+  // Font Awesome Icons
+  faPlus = faPlus
+  faEdit = faEdit
+  faTrash = faTrash
+  faArrowLeft = faArrowLeft
+  faMapMarkerAlt = faMapMarkerAlt
+  faSearch = faSearch
+  faCheckCircle = faCheckCircle
+  faExclamationCircle = faExclamationCircle
+  faSave = faSave
+  faLeaf = faLeaf
 
   constructor(
     private fb: FormBuilder,
     httpClient: HttpClient,
     private router: Router,
     private authService: AuthService,
+    private farmService: FarmService
   ) {
     this.http = httpClient
     this.initForm()
@@ -89,29 +119,43 @@ export class FarmFormComponent implements OnInit {
   }
 
   loadFarms(): void {
-    if (!this.userId) return
+    if (!this.userId) return;
 
-    this.loading = true
-    this.showForm = false // Ensure we're showing the list view
+    this.loading = true;
+    this.showForm = false; // Ensure we're showing the list view
 
-    console.log("Loading farms for user:", this.userId)
+    console.log("Loading farms for user:", this.userId);
 
-    this.http.get<Farm[]>(`${this.apiUrl}${API_CONFIG.ENDPOINTS.FARM_DATA_BY_ID(this.userId)}`).subscribe({
-      next: (farms) => {
-        console.log("Farms loaded:", farms)
-        this.farms = farms
-        this.loading = false
+    this.farmService.getFarms(this.userId).subscribe({
+      next: (data) => {
+        console.log("Farms loaded:", data);
+        this.farms = data;
+        this.filteredFarms = data;
+        this.loading = false;
       },
       error: (error) => {
-        console.error("Error loading farms:", error)
-        this.errorMessage = "Failed to load farms. Please try again."
-        this.loading = false
-        this.submitError = true
+        console.error("Error loading farms:", error);
+        this.errorMessage = "Failed to load farms. Please try again.";
+        this.loading = false;
+        this.submitError = true;
       },
-    })
+    });
   }
 
-  // Rest of the component remains the same...
+  filterFarms() {
+    if (!this.searchQuery) {
+      this.filteredFarms = this.farms
+      return
+    }
+
+    const query = this.searchQuery.toLowerCase()
+    this.filteredFarms = this.farms.filter(farm => 
+      farm.farmName.toLowerCase().includes(query) ||
+      farm.location.toLowerCase().includes(query) ||
+      farm.soilType.toLowerCase().includes(query)
+    )
+  }
+
   showAddFarmForm(): void {
     console.log("Showing add farm form")
     this.isEditing = false
@@ -142,28 +186,26 @@ export class FarmFormComponent implements OnInit {
 
   deleteFarm(farm: Farm): void {
     if (confirm(`Are you sure you want to delete ${farm.farmName}?`)) {
-      console.log("Deleting farm:", farm)
+      console.log("Deleting farm:", farm);
 
-      // We need to pass the userId as a query parameter
-      this.http
-        .delete(`${this.apiUrl}${API_CONFIG.ENDPOINTS.FARM_DATA_DELETE(farm.id)}?userId=${this.userId}`)
-        .subscribe({
-          next: () => {
-            console.log("Farm deleted successfully")
-            this.successMessage = `Farm "${farm.farmName}" deleted successfully`
-            this.submitSuccess = true
-            setTimeout(() => {
-              this.submitSuccess = false
-            }, 3000)
-            // Remove farm from local array
-            this.farms = this.farms.filter((f) => f.id !== farm.id)
-          },
-          error: (error) => {
-            console.error("Error deleting farm:", error)
-            this.errorMessage = "Failed to delete farm. Please try again."
-            this.submitError = true
-          },
-        })
+      this.farmService.deleteFarm(farm.id, this.userId!).subscribe({
+        next: () => {
+          console.log("Farm deleted successfully");
+          this.successMessage = `Farm "${farm.farmName}" deleted successfully`;
+          this.submitSuccess = true;
+          setTimeout(() => {
+            this.submitSuccess = false;
+          }, 3000);
+          // Remove farm from local array
+          this.farms = this.farms.filter((f) => f.id !== farm.id);
+          this.filteredFarms = this.farms;
+        },
+        error: (error) => {
+          console.error("Error deleting farm:", error);
+          this.errorMessage = "Failed to delete farm. Please try again.";
+          this.submitError = true;
+        },
+      });
     }
   }
 
@@ -229,60 +271,58 @@ export class FarmFormComponent implements OnInit {
         ...this.farmForm.value,
         userId: this.userId,
         timestamp: new Date().toISOString(),
-      }
+      };
 
       // Clear previous messages
-      this.submitSuccess = false
-      this.submitError = false
+      this.submitSuccess = false;
+      this.submitError = false;
 
       if (this.isEditing && this.currentFarmId) {
         // Update existing farm
-        console.log("Updating farm:", this.currentFarmId)
-        this.http
-          .put(`${this.apiUrl}${API_CONFIG.ENDPOINTS.FARM_DATA_UPDATE(this.currentFarmId)}`, formData)
-          .subscribe({
-            next: (response: any) => {
-              console.log("Farm data updated successfully:", response)
-              this.successMessage = "Farm updated successfully"
-              this.submitSuccess = true
-              this.loadFarms() // Refresh farms list
-
-              // Reset form and go back to list view after a delay
-              setTimeout(() => {
-                this.showForm = false
-                this.isEditing = false
-                this.currentFarmId = null
-                this.initForm()
-              }, 1500)
-            },
-            error: (error: { message: string }) => {
-              console.error("Error updating farm data:", error)
-              this.submitError = true
-              this.errorMessage = error.message || "Failed to update farm data. Please try again."
-            },
-          })
-      } else {
-        // Create new farm
-        console.log("Creating new farm")
-        this.http.post(`${this.apiUrl}${API_CONFIG.ENDPOINTS.FARM_DATA}`, formData).subscribe({
+        console.log("Updating farm:", this.currentFarmId);
+        this.farmService.updateFarm(this.currentFarmId, formData).subscribe({
           next: (response: any) => {
-            console.log("Farm data saved successfully:", response)
-            this.successMessage = "Farm added successfully"
-            this.submitSuccess = true
-            this.loadFarms() // Refresh farms list
+            console.log("Farm data updated successfully:", response);
+            this.successMessage = "Farm updated successfully";
+            this.submitSuccess = true;
+            this.loadFarms(); // Refresh farms list
 
             // Reset form and go back to list view after a delay
             setTimeout(() => {
-              this.showForm = false
-              this.initForm()
-            }, 1500)
+              this.showForm = false;
+              this.isEditing = false;
+              this.currentFarmId = null;
+              this.initForm();
+            }, 1500);
           },
           error: (error: { message: string }) => {
-            console.error("Error saving farm data:", error)
-            this.submitError = true
-            this.errorMessage = error.message || "Failed to save farm data. Please try again."
+            console.error("Error updating farm data:", error);
+            this.submitError = true;
+            this.errorMessage = error.message || "Failed to update farm data. Please try again.";
           },
-        })
+        });
+      } else {
+        // Create new farm
+        console.log("Creating new farm");
+        this.farmService.createFarm(formData).subscribe({
+          next: (response: any) => {
+            console.log("Farm data saved successfully:", response);
+            this.successMessage = "Farm added successfully";
+            this.submitSuccess = true;
+            this.loadFarms(); // Refresh farms list
+
+            // Reset form and go back to list view after a delay
+            setTimeout(() => {
+              this.showForm = false;
+              this.initForm();
+            }, 1500);
+          },
+          error: (error: { message: string }) => {
+            console.error("Error saving farm data:", error);
+            this.submitError = true;
+            this.errorMessage = error.message || "Failed to save farm data. Please try again.";
+          },
+        });
       }
     }
   }

@@ -1,215 +1,344 @@
 <app-navbar></app-navbar>
 
 <div class="suggestions-container">
-  <h2>Crop Suggestions</h2>
+  <div class="page-header">
+    <div class="page-title">
+      <i class="fas fa-seedling"></i>
+      <h2>Crop Suggestions</h2>
+    </div>
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" class="search-input" placeholder="Search suggestions..." [(ngModel)]="searchQuery">
+    </div>
+  </div>
   
   <div class="farm-selection-section" *ngIf="farms.length > 0">
-      <h3>Select a Farm</h3>
-      <div class="farms-grid">
-          <div *ngFor="let farm of farms" class="farm-card" [class.selected]="selectedFarm?.id === farm.id" (click)="selectFarm(farm)">
-              <h4>{{ farm.farmName }}</h4>
-              <div class="farm-details">
-                  <p><strong>Size:</strong> {{ farm.farmSize }} acres</p>
-                  <p><strong>Location:</strong> {{ farm.location }}</p>
-                  <p><strong>Soil Type:</strong> {{ farm.soilType }}</p>
-              </div>
-          </div>
+    <h3><i class="fas fa-tractor"></i> Select a Farm</h3>
+    <div class="farms-grid">
+      <div *ngFor="let farm of farms" class="farm-card" [class.selected]="selectedFarm?.id === farm.id" (click)="selectFarm(farm)">
+        <h4><i class="fas fa-map-marker-alt"></i> {{ farm.farmName }}</h4>
+        <div class="farm-details">
+          <p><i class="fas fa-ruler-combined"></i> <strong>Size:</strong> {{ farm.farmSize }} acres</p>
+          <p><i class="fas fa-map"></i> <strong>Location:</strong> {{ farm.location }}</p>
+          <p><i class="fas fa-mountain"></i> <strong>Soil Type:</strong> {{ farm.soilType }}</p>
+        </div>
       </div>
+    </div>
   </div>
   
   <div *ngIf="farms.length === 0 && !loading" class="no-farms-message">
-      <p>No farms found. Please add farm details first.</p>
-      <button (click)="navigateToFarmForm()" class="secondary-btn">Add Farm Details</button>
+    <i class="fas fa-exclamation-circle"></i>
+    <p>No farms found. Please add farm details first.</p>
+    <button (click)="navigateToFarmForm()" class="secondary-btn">
+      <i class="fas fa-plus"></i> Add Farm Details
+    </button>
   </div>
   
   <div *ngIf="selectedFarm && !loading && !showCropCountSelector" class="suggestion-actions">
+    <div class="action-group">
       <button (click)="showCropCountSelection()" class="get-suggestions-btn" [disabled]="loading">
-          {{ hasSavedSuggestions ? 'Generate New Suggestions' : 'Get Crop Suggestions' }}
+        <i class="fas fa-magic"></i>
+        {{ hasSavedSuggestions ? 'Generate New Suggestions' : 'Get Crop Suggestions' }}
       </button>
-      <p *ngIf="hasSavedSuggestions" class="last-updated">
-          Last updated: {{ lastUpdated | date:'medium' }}
-      </p>
+      <div class="last-updated" *ngIf="hasSavedSuggestions">
+        <i class="fas fa-clock"></i>
+        Last updated: {{ lastUpdated | date:'medium' }}
+      </div>
+    </div>
   </div>
   
-  <!-- Crop Count Selector -->
-  <div *ngIf="showCropCountSelector" class="crop-count-selector">
-      <h3>How many crops would you like to grow?</h3>
-      <p>Enter the number of crops you want to grow on your farm. We'll suggest the best combinations.</p>
+  <!-- Crop Count Selection Modal -->
+  <div *ngIf="showCropCountSelector" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-calculator"></i> Generate New Suggestions</h3>
+        <button class="modal-close" (click)="cancelCropCountSelection()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
       
-      <div class="crop-count-input">
+      <div class="modal-body">
+        <div class="modal-description">
+          <i class="fas fa-info-circle"></i>
+          <p>Enter the number of crops you want to grow on your farm. We'll analyze your farm's conditions and suggest the best combinations.</p>
+        </div>
+        
+        <div class="crop-count-input">
           <div class="form-group">
-              <label for="cropCount">Number of Crops:</label>
-              <input 
-                  type="number" 
-                  id="cropCount" 
-                  [(ngModel)]="customCropCount" 
-                  min="1" 
-                  max="10"
-                  class="crop-count-field"
-                  placeholder="Enter number (1-10)"
-              >
+            <label for="cropCount">
+              <i class="fas fa-hashtag"></i>
+              Number of Crops
+            </label>
+            <input 
+              type="number" 
+              id="cropCount" 
+              [(ngModel)]="customCropCount" 
+              min="1" 
+              max="10"
+              class="crop-count-field"
+              placeholder="Enter number (1-10)"
+            >
           </div>
           
           <p class="input-helper-text">
-              Enter a number between 1 and 10. Most farmers typically grow 2-3 crops.
+            <i class="fas fa-lightbulb"></i>
+            Enter a number between 1 and 10. Most farmers typically grow 2-3 crops.
           </p>
+        </div>
       </div>
       
-      <div class="crop-count-actions">
-          <button class="secondary-btn" (click)="cancelCropCountSelection()">Cancel</button>
-          <button class="get-suggestions-btn" (click)="getSuggestions()" [disabled]="!customCropCount || customCropCount < 1">
-              Get Suggestions
-          </button>
+      <div class="modal-footer">
+        <button class="secondary-btn" (click)="cancelCropCountSelection()">
+          <i class="fas fa-times"></i>
+          Cancel
+        </button>
+        <button 
+          class="get-suggestions-btn" 
+          (click)="getSuggestions()" 
+          [disabled]="!customCropCount || customCropCount < 1 || loading"
+        >
+          <i class="fas fa-magic"></i>
+          Generate Suggestions
+        </button>
       </div>
+    </div>
   </div>
   
-  <div *ngIf="error" class="error-message">
-    {{ error }}
-  </div>
-  
-  <div *ngIf="loading" class="loading">
-    <p>Analyzing your farm data and local weather conditions...</p>
-    <div class="spinner"></div>
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-content">
+      <div class="loading-header">
+        <h3>
+          <i class="fas fa-seedling loading-icon"></i>
+          Analyzing Your Farm
+        </h3>
+      </div>
+      
+      <div class="loading-text">
+        <i class="fas fa-spinner fa-spin"></i>
+        Analyzing your farm data and local weather conditions...
+      </div>
+
+      <div class="progress-container">
+        <div class="progress-bar" [style.width.%]="(loadingStep / 3) * 100"></div>
+      </div>
+
+      <div class="loading-steps">
+        <div class="loading-step" [class.active]="loadingStep >= 1" [class.completed]="loadingStep > 1">
+          <div class="step-icon">
+            <i class="fas fa-check-circle" *ngIf="loadingStep > 1"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="loadingStep === 1"></i>
+            <i class="fas fa-circle" *ngIf="loadingStep < 1"></i>
+          </div>
+          <div class="step-content">
+            <span class="step-title">Analyzing Soil Conditions</span>
+            <span class="step-description" *ngIf="loadingStep >= 1">Evaluating soil type, pH levels, and nutrient content</span>
+          </div>
+        </div>
+
+        <div class="loading-step" [class.active]="loadingStep >= 2" [class.completed]="loadingStep > 2">
+          <div class="step-icon">
+            <i class="fas fa-check-circle" *ngIf="loadingStep > 2"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="loadingStep === 2"></i>
+            <i class="fas fa-circle" *ngIf="loadingStep < 2"></i>
+          </div>
+          <div class="step-content">
+            <span class="step-title">Checking Weather Patterns</span>
+            <span class="step-description" *ngIf="loadingStep >= 2">Analyzing temperature, rainfall, and seasonal forecasts</span>
+          </div>
+        </div>
+
+        <div class="loading-step" [class.active]="loadingStep >= 3" [class.completed]="loadingStep > 3">
+          <div class="step-icon">
+            <i class="fas fa-check-circle" *ngIf="loadingStep > 3"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="loadingStep === 3"></i>
+            <i class="fas fa-circle" *ngIf="loadingStep < 3"></i>
+          </div>
+          <div class="step-content">
+            <span class="step-title">Generating Crop Suggestions</span>
+            <span class="step-description" *ngIf="loadingStep >= 3">Creating optimal crop combinations and recommendations</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   
   <div *ngIf="weatherData && !loading" class="weather-data">
-    <h3>Current Weather Conditions</h3>
+    <h3><i class="fas fa-cloud-sun"></i> Current Weather Conditions</h3>
     <div class="weather-grid">
       <div class="weather-item">
+        <i class="fas fa-temperature-high"></i>
         <span class="label">Temperature:</span>
         <span class="value">{{ weatherData.temperature }}°C</span>
       </div>
       <div class="weather-item">
+        <i class="fas fa-cloud-rain"></i>
         <span class="label">Rainfall:</span>
         <span class="value">{{ weatherData.rainfall }} mm</span>
       </div>
       <div class="weather-item">
+        <i class="fas fa-tint"></i>
         <span class="label">Humidity:</span>
         <span class="value">{{ weatherData.humidity }}%</span>
       </div>
       <div class="weather-item">
+        <i class="fas fa-calendar-alt"></i>
         <span class="label">Season:</span>
         <span class="value">{{ weatherData.season }}</span>
       </div>
-      <div *ngIf="weatherData.forecast" class="weather-item">
+      <div *ngIf="weatherData.forecast" class="weather-item forecast-item">
+        <i class="fas fa-cloud-sun-rain"></i>
         <span class="label">Forecast:</span>
         <span class="value">{{ weatherData.forecast }}</span>
       </div>
     </div>
   </div>
   
-  <!-- Crop Combinations Section (for multiple crops) -->
-  <div *ngIf="(cropCombinations).length > 0 && selectedCropCount && selectedCropCount > 1 && !loading" class="crop-combinations">
-    <h3>Recommended Crop Combinations</h3>
+  <!-- Crop Combinations Section -->
+  <div *ngIf="cropCombinations && cropCombinations.length > 0 && selectedCropCount && selectedCropCount > 1 && !loading" class="crop-combinations">
+    <h3><i class="fas fa-layer-group"></i> Recommended Crop Combinations</h3>
     
     <div *ngFor="let combination of cropCombinations; let i = index" class="combination-card">
       <div class="combination-header">
-        <h4>Combination {{ i + 1 }}</h4>
+        <h4><i class="fas fa-puzzle-piece"></i> Combination {{ i + 1 }}</h4>
         <div class="compatibility-score" [style.background-color]="getCompatibilityColor(combination.compatibilityScore)">
-          {{ combination.compatibilityScore }}% Compatible
+          <i class="fas fa-percentage"></i> {{ combination.compatibilityScore }}% Compatible
         </div>
       </div>
       
       <div class="combination-crops">
         <div *ngFor="let crop of combination.crops" class="combination-crop">
-          <div class="crop-name">{{ crop.cropName }}</div>
-          <div class="crop-percentage">{{ crop.percentage }}% of farm</div>
-          <div class="crop-area">{{ calculateArea(crop.percentage) }} acres</div>
+          <div class="crop-name">
+            <i class="fas fa-seedling"></i> {{ crop.cropName }}
+          </div>
+          <div class="crop-percentage">
+            <i class="fas fa-percentage"></i> {{ crop.percentage }}% of farm
+          </div>
+          <div class="crop-area">
+            <i class="fas fa-ruler-combined"></i> {{ calculateArea(crop.percentage) }} acres
+          </div>
         </div>
       </div>
       
       <div class="combination-details">
         <div class="detail-item">
-          <span class="label">Why These Crops Work Together:</span>
+          <span class="label"><i class="fas fa-check-circle"></i> Why These Crops Work Together:</span>
           <ul>
             <li *ngFor="let reason of combination.compatibilityReasons">{{ reason }}</li>
           </ul>
         </div>
         
         <div class="detail-item">
-          <span class="label">Planting Sequence:</span>
+          <span class="label"><i class="fas fa-calendar-alt"></i> Planting Sequence:</span>
           <p>{{ combination.plantingSequence }}</p>
         </div>
         
         <div class="detail-item">
-          <span class="label">Crop Rotation Benefits:</span>
+          <span class="label"><i class="fas fa-sync"></i> Crop Rotation Benefits:</span>
           <p>{{ combination.rotationBenefits }}</p>
         </div>
         
         <div *ngIf="combination.additionalNotes" class="detail-item notes">
-          <span class="label">Additional Notes:</span>
+          <span class="label"><i class="fas fa-sticky-note"></i> Additional Notes:</span>
           <p>{{ combination.additionalNotes }}</p>
         </div>
       </div>
     </div>
   </div>
   
-  <div *ngIf="suggestions.length > 0 && !loading" class="suggestions-list">
-    <h3>Recommended Crops</h3>
+  <div class="suggestions-list" *ngIf="selectedFarm && suggestions.length > 0 && !loading">
+    <h3><i class="fas fa-seedling"></i> Recommended Crops</h3>
     
-    <div *ngFor="let suggestion of suggestions" class="suggestion-card">
+    <!-- First Crop Suggestion -->
+    <div class="suggestion-card" *ngFor="let suggestion of suggestions">
       <div class="suggestion-header">
-        <h4>{{ suggestion.cropName }}</h4>
-        <div class="confidence" [style.background-color]="getConfidenceColor(suggestion.confidence)">
+        <h4>
+          <i class="fas fa-seedling"></i>
+          {{ suggestion.cropName }}
+        </h4>
+        <div class="confidence">
+          <i class="fas fa-chart-line"></i>
           {{ suggestion.confidence }}% Confidence
         </div>
       </div>
-      
+
       <div class="suggestion-details">
         <div class="detail-item">
-          <span class="label">Reasons for Selection:</span>
+          <div class="label">
+            <i class="fas fa-list-check"></i>
+            Reasons for Selection
+          </div>
           <ul>
             <li *ngFor="let reason of suggestion.reasonsForSelection">{{ reason }}</li>
           </ul>
         </div>
-        
+
         <div class="detail-item">
-          <span class="label">Planting Time:</span>
-          <span class="value">{{ suggestion.plantingTime }}</span>
+          <div class="label">
+            <i class="fas fa-calendar"></i>
+            Planting Time
+          </div>
+          <div class="value">{{ suggestion.plantingTime }}</div>
         </div>
-        
+
         <div class="detail-item">
-          <span class="label">Harvest Time:</span>
-          <span class="value">{{ suggestion.harvestTime }}</span>
+          <div class="label">
+            <i class="fas fa-calendar-check"></i>
+            Harvest Time
+          </div>
+          <div class="value">{{ suggestion.harvestTime }}</div>
         </div>
-        
+
         <div class="detail-item">
-          <span class="label">Time to Harvest:</span>
-          <span class="value">{{ suggestion.timeToHarvest }}</span>
+          <div class="label">
+            <i class="fas fa-clock"></i>
+            Time to Harvest
+          </div>
+          <div class="value">{{ suggestion.timeToHarvest }}</div>
         </div>
-        
+
         <div class="detail-item">
-          <span class="label">Expected Yield:</span>
-          <span class="value">{{ suggestion.expectedYield }}</span>
+          <div class="label">
+            <i class="fas fa-chart-simple"></i>
+            Expected Yield
+          </div>
+          <div class="value">{{ suggestion.expectedYield }}</div>
         </div>
-        
+
         <div class="detail-item">
-          <span class="label">Capital Required:</span>
-          <span class="value">{{ suggestion.capitalRequired }}</span>
+          <div class="label">
+            <i class="fas fa-coins"></i>
+            Capital Required
+          </div>
+          <div class="value">{{ suggestion.capitalRequired }}</div>
         </div>
-        
+
         <div class="detail-item">
-          <span class="label">Water Requirements:</span>
-          <span class="value">{{ suggestion.waterRequirements }}</span>
+          <div class="label">
+            <i class="fas fa-droplet"></i>
+            Water Requirements
+          </div>
+          <div class="value">{{ suggestion.waterRequirements }}</div>
         </div>
-        
+
         <div class="detail-item">
-          <span class="label">Recommended Fertilizers:</span>
+          <div class="label">
+            <i class="fas fa-flask"></i>
+            Recommended Fertilizers
+          </div>
           <ul>
             <li *ngFor="let fertilizer of suggestion.fertilizers">{{ fertilizer }}</li>
           </ul>
         </div>
-        
+
         <div class="detail-item">
-          <span class="label">Pest Management:</span>
+          <div class="label">
+            <i class="fas fa-bug"></i>
+            Pest Management
+          </div>
           <ul>
             <li *ngFor="let pest of suggestion.pestManagement">{{ pest }}</li>
           </ul>
-        </div>
-        
-        <div *ngIf="suggestion.additionalNotes" class="detail-item notes">
-          <span class="label">Additional Notes:</span>
-          <p>{{ suggestion.additionalNotes }}</p>
         </div>
       </div>
     </div>
@@ -218,21 +347,21 @@
 
 <!-- Floating Chatbot -->
 <div class="chatbot-wrapper" [class.open]="isChatbotOpen">
-  <!-- Chatbot Icon -->
   <div class="chatbot-icon" (click)="toggleChatbot()" *ngIf="!isChatbotOpen">
     <div class="icon-inner">
-      <span class="chat-icon">💬</span>
+      <i class="fas fa-comments"></i>
       <span *ngIf="unreadMessages > 0" class="unread-badge">{{ unreadMessages }}</span>
     </div>
   </div>
   
-  <!-- Chatbot Panel -->
   <div class="chatbot-panel" *ngIf="isChatbotOpen">
     <div class="pull-indicator"></div>
     <div class="chatbot-header">
-      <h3>CropWise Assistant</h3>
+      <h3><i class="fas fa-robot"></i> CropWise Assistant</h3>
       <div class="chatbot-controls">
-        <button class="close-btn" (click)="toggleChatbot()">✕</button>
+        <button class="close-btn" (click)="toggleChatbot()">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
     </div>
     
@@ -267,12 +396,12 @@
           (click)="sendMessage()" 
           [disabled]="!currentMessage.trim() || isChatLoading"
         >
-          <span class="send-icon">➤</span>
+          <i class="fas fa-paper-plane"></i>
         </button>
       </div>
       
       <div class="chat-suggestions">
-        <p>Suggested questions:</p>
+        <p><i class="fas fa-lightbulb"></i> Suggested questions:</p>
         <div class="suggestion-chips">
           <button *ngFor="let question of suggestedQuestions" class="suggestion-chip" (click)="useQuestion(question)">
             {{ question }}
