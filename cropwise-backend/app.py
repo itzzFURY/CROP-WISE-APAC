@@ -29,7 +29,7 @@ GEMINI_API_KEY = "AIzaSyBauwaESwuSSWuKwmMk8m5PFefCoaJHrsY"
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent"
 
 # Weather API configuration
-WEATHER_API_KEY = "AIzaSyBMbvwLoSNrIcrZYNbeaXsN2DJuQsFpQ3I"  
+WEATHER_API_KEY = "712e944f3af7fa9850a0c1a4bc1a00b9"  
 WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather"
 
 def debug_crop_suggestions_request(farm_data, crop_count, weather_data, response_data):
