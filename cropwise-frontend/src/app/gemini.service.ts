@@ -87,6 +87,14 @@ export class GeminiService {
   // Get crop suggestions from Gemini API via Flask backend
   getCropSuggestions(farmData: any, cropCount = 1): Observable<GeminiResponse> {
     console.log(`Requesting crop suggestions with count: ${cropCount}`, farmData)
+    const requestData = {
+      ...farmData,
+      cropCount,
+      latitude: farmData.latitude || null,
+      longitude: farmData.longitude || null,
+    };
+  
+    console.log("Sending request with data:", requestData);
     return this.http
       .post<GeminiResponse>(`${this.apiUrl}${API_CONFIG.ENDPOINTS.CROP_SUGGESTIONS}`, {
         ...farmData,

@@ -369,6 +369,7 @@ export class CropSuggestionsComponent implements OnInit, AfterViewChecked, OnDes
         this.stopLoadingAnimation()
         
         console.log("Crop suggestions received:", response)
+        console.log("Weather data received:", response.weatherData)
 
         // Check if there's an error in the response
         if (response.error) {
