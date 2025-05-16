@@ -2,21 +2,39 @@
 
 <div class="farm-form-container">
   <div *ngIf="!showForm">
-    <h2>Farm Management</h2>
-    <p>Manage your farms or add a new one</p>
+    <div class="page-header">
+      <h2><fa-icon [icon]="faLeaf" class="header-icon"></fa-icon> Farm Management</h2>
+      <p>Manage your farms or add a new one</p>
+    </div>
 
     <div *ngIf="submitSuccess" class="alert success">
+      <fa-icon [icon]="faCheckCircle"></fa-icon>
       {{ successMessage }}
     </div>
 
     <div *ngIf="submitError" class="alert error">
+      <fa-icon [icon]="faExclamationCircle"></fa-icon>
       {{ errorMessage }}
     </div>
 
-    <!-- Add New Farm Button -->
-    <div class="add-farm-container">
+    <!-- Search and Add Farm Container -->
+    <div class="search-add-container">
+      <!-- Search Bar -->
+      <div class="search-container">
+        <fa-icon [icon]="faSearch" class="search-icon"></fa-icon>
+        <input 
+          type="text" 
+          class="search-input" 
+          [(ngModel)]="searchQuery" 
+          (input)="filterFarms()"
+          placeholder="Search farms by name, location, or soil type..."
+        >
+      </div>
+
+      <!-- Add New Farm Button -->
       <button class="add-farm-btn" (click)="showAddFarmForm()">
-        <span class="btn-icon">+</span> Add New Farm
+        <fa-icon [icon]="faPlus"></fa-icon>
+        <span>Add New Farm</span>
       </button>
     </div>
 
@@ -27,16 +45,18 @@
     </div>
 
     <!-- Farms List -->
-    <div *ngIf="!loading && farms.length > 0" class="farms-grid">
-      <div *ngFor="let farm of farms" class="farm-card">
+    <div *ngIf="!loading && filteredFarms.length > 0" class="farms-grid">
+      <div *ngFor="let farm of filteredFarms" class="farm-card">
         <div class="farm-card-header">
           <h3>{{ farm.farmName }}</h3>
           <div class="farm-actions">
             <button class="action-btn edit" (click)="editFarm(farm)">
-              Edit
+              <fa-icon [icon]="faEdit"></fa-icon>
+              <span>Edit</span>
             </button>
             <button class="action-btn delete" (click)="deleteFarm(farm)">
-              Delete
+              <fa-icon [icon]="faTrash"></fa-icon>
+              <span>Delete</span>
             </button>
           </div>
         </div>
@@ -49,130 +69,149 @@
     </div>
 
     <!-- Empty State -->
-    <div *ngIf="!loading && farms.length === 0" class="empty-state">
+    <div *ngIf="!loading && filteredFarms.length === 0" class="empty-state">
       <div class="empty-state-content">
-        <h3>No Farms Added Yet</h3>
-        <p>Add your first farm to get started with crop suggestions</p>
+        <fa-icon [icon]="faLeaf" class="empty-icon"></fa-icon>
+        <h3>No Farms Found</h3>
+        <p *ngIf="searchQuery">No farms match your search criteria</p>
+        <p *ngIf="!searchQuery">Add your first farm to get started with crop suggestions</p>
         <button class="add-farm-btn" (click)="showAddFarmForm()">
-          <span class="btn-icon">+</span> Add New Farm
+          <fa-icon [icon]="faPlus"></fa-icon>
+          <span>Add New Farm</span>
         </button>
       </div>
     </div>
   </div>
 
   <!-- Farm Form -->
-  <div *ngIf="showForm">
+  <div *ngIf="showForm" class="form-container">
     <div class="form-header">
-      <h2>{{ isEditing ? 'Edit Farm' : 'Add New Farm' }}</h2>
-      <button class="back-btn" (click)="cancelForm()">Back to Farms</button>
+      <h2>
+        <fa-icon [icon]="faLeaf" class="header-icon"></fa-icon>
+        {{ isEditing ? 'Edit Farm' : 'Add New Farm' }}
+      </h2>
+      <button class="back-btn" (click)="cancelForm()">
+        <fa-icon [icon]="faArrowLeft"></fa-icon>
+        <span>Back to Farms</span>
+      </button>
     </div>
 
     <p>Please provide information about your farm</p>
 
     <form [formGroup]="farmForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="farmName">Farm Name</label>
-        <input 
-          type="text" 
-          id="farmName" 
-          formControlName="farmName" 
-          placeholder="Enter farm name"
-        >
-        <div *ngIf="farmForm.get('farmName')?.invalid && farmForm.get('farmName')?.touched" class="error-message">
-          Farm name is required
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="farmSize">Farm Size (acres)</label>
-        <input 
-          type="number" 
-          id="farmSize" 
-          formControlName="farmSize" 
-          placeholder="Enter farm size in acres"
-          step="0.1"
-          min="0.1"
-        >
-        <div *ngIf="farmForm.get('farmSize')?.invalid && farmForm.get('farmSize')?.touched" class="error-message">
-          Valid farm size is required (minimum 0.1 acres)
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="location">Location</label>
-        <div class="location-input-group">
+      <div class="form-content">
+        <div class="form-group">
+          <label for="farmName">Farm Name</label>
           <input 
             type="text" 
-            id="location" 
-            formControlName="location" 
-            placeholder="Enter location or use button"
+            id="farmName" 
+            formControlName="farmName" 
+            placeholder="Enter farm name"
           >
-          <button type="button" class="location-btn" (click)="getUserLocation()">
-            Use My Location
-          </button>
+          <div *ngIf="farmForm.get('farmName')?.invalid && farmForm.get('farmName')?.touched" class="error-message">
+            <fa-icon [icon]="faExclamationCircle"></fa-icon>
+            Farm name is required
+          </div>
         </div>
-        <div *ngIf="farmForm.get('location')?.invalid && farmForm.get('location')?.touched" class="error-message">
-          Location is required
+
+        <div class="form-group">
+          <label for="farmSize">Farm Size (acres)</label>
+          <input 
+            type="number" 
+            id="farmSize" 
+            formControlName="farmSize" 
+            placeholder="Enter farm size in acres"
+            step="0.1"
+            min="0.1"
+          >
+          <div *ngIf="farmForm.get('farmSize')?.invalid && farmForm.get('farmSize')?.touched" class="error-message">
+            <fa-icon [icon]="faExclamationCircle"></fa-icon>
+            Valid farm size is required (minimum 0.1 acres)
+          </div>
         </div>
-      </div>
 
-      <div class="form-group" style="display: none;">
-        <label for="latitude">Latitude</label>
-        <input 
-          type="text" 
-          id="latitude" 
-          formControlName="latitude"
-        >
-      </div>
-
-      <div class="form-group" style="display: none;">
-        <label for="longitude">Longitude</label>
-        <input 
-          type="text" 
-          id="longitude" 
-          formControlName="longitude"
-        >
-      </div>
-
-      <div class="form-group">
-        <label for="soilType">Soil Type</label>
-        <select id="soilType" formControlName="soilType">
-          <option value="" disabled>Select soil type</option>
-          <option *ngFor="let type of soilTypes" [value]="type">{{ type }}</option>
-        </select>
-        <div *ngIf="farmForm.get('soilType')?.invalid && farmForm.get('soilType')?.touched" class="error-message">
-          Soil type is required
+        <div class="form-group">
+          <label for="location">Location</label>
+          <div class="location-input-group">
+            <input 
+              type="text" 
+              id="location" 
+              formControlName="location" 
+              placeholder="Enter location or use button"
+            >
+            <button type="button" class="location-btn" (click)="getUserLocation()">
+              <fa-icon [icon]="faMapMarkerAlt"></fa-icon>
+              <span>Use My Location</span>
+            </button>
+          </div>
+          <div *ngIf="farmForm.get('location')?.invalid && farmForm.get('location')?.touched" class="error-message">
+            <fa-icon [icon]="faExclamationCircle"></fa-icon>
+            Location is required
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="yieldPerformance">Yield Performance</label>
-        <textarea 
-          id="yieldPerformance" 
-          formControlName="yieldPerformance" 
-          placeholder="Enter yield performance details (e.g., 'Good yields for wheat in previous seasons, moderate for corn')"
-          rows="3"
-        ></textarea>
-        <div *ngIf="farmForm.get('yieldPerformance')?.invalid && farmForm.get('yieldPerformance')?.touched" class="error-message">
-          Yield performance is required
+        <div class="form-group">
+          <label for="soilType">Soil Type</label>
+          <select id="soilType" formControlName="soilType">
+            <option value="" disabled>Select soil type</option>
+            <option *ngFor="let type of soilTypes" [value]="type">{{ type }}</option>
+          </select>
+          <div *ngIf="farmForm.get('soilType')?.invalid && farmForm.get('soilType')?.touched" class="error-message">
+            <fa-icon [icon]="faExclamationCircle"></fa-icon>
+            Soil type is required
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="cropHistory">Crop History</label>
-        <textarea 
-          id="cropHistory" 
-          formControlName="cropHistory" 
-          placeholder="Enter crop history details (e.g., 'Wheat (2022), Corn (2021), Soybeans (2020)')"
-          rows="4"
-        ></textarea>
-        <div *ngIf="farmForm.get('cropHistory')?.invalid && farmForm.get('cropHistory')?.touched" class="error-message">
-          Crop history is required
+        <div class="form-group full-width">
+          <label for="yieldPerformance">Yield Performance</label>
+          <textarea 
+            id="yieldPerformance" 
+            formControlName="yieldPerformance" 
+            placeholder="Enter yield performance details (e.g., 'Good yields for wheat in previous seasons, moderate for corn')"
+            rows="3"
+          ></textarea>
+          <div *ngIf="farmForm.get('yieldPerformance')?.invalid && farmForm.get('yieldPerformance')?.touched" class="error-message">
+            <fa-icon [icon]="faExclamationCircle"></fa-icon>
+            Yield performance is required
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="cropHistory">Crop History</label>
+          <textarea 
+            id="cropHistory" 
+            formControlName="cropHistory" 
+            placeholder="Enter crop history details (e.g., 'Wheat (2022), Corn (2021), Soybeans (2020)')"
+            rows="4"
+          ></textarea>
+          <div *ngIf="farmForm.get('cropHistory')?.invalid && farmForm.get('cropHistory')?.touched" class="error-message">
+            <fa-icon [icon]="faExclamationCircle"></fa-icon>
+            Crop history is required
+          </div>
+        </div>
+
+        <div class="form-group" style="display: none;">
+          <label for="latitude">Latitude</label>
+          <input 
+            type="text" 
+            id="latitude" 
+            formControlName="latitude"
+          >
+        </div>
+
+        <div class="form-group" style="display: none;">
+          <label for="longitude">Longitude</label>
+          <input 
+            type="text" 
+            id="longitude" 
+            formControlName="longitude"
+          >
         </div>
       </div>
 
       <button type="submit" class="submit-btn" [disabled]="farmForm.invalid">
-        {{ isEditing ? 'Update Farm' : 'Save Farm Data' }}
+        <fa-icon [icon]="isEditing ? faSave : faPlus"></fa-icon>
+        <span>{{ isEditing ? 'Update Farm' : 'Save Farm Data' }}</span>
       </button>
     </form>
   </div>

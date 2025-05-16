@@ -1,4 +1,4 @@
-import { Component, type OnInit, ViewChild, type ElementRef, type AfterViewChecked, HostListener } from "@angular/core"
+import { Component, type OnInit, ViewChild, type ElementRef, type AfterViewChecked, HostListener, OnDestroy } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
 import { GeminiService, type CropSuggestion } from "../gemini.service"
@@ -7,6 +7,7 @@ import { HttpClientModule } from "@angular/common/http"
 import { Router } from "@angular/router"
 import { AuthService } from "../auth.service"
 import { FormatMessagePipe } from "../format-message.pipe"
+import { interval, Subscription } from 'rxjs'
 
 interface Farm {
   id: string
@@ -58,7 +59,7 @@ interface CropCombination {
   templateUrl: "./crop-suggestions.component.html",
   styleUrls: ["./crop-suggestions.component.css"],
 })
-export class CropSuggestionsComponent implements OnInit, AfterViewChecked {
+export class CropSuggestionsComponent implements OnInit, AfterViewChecked, OnDestroy {
   @ViewChild("chatMessages")
   private chatMessagesContainer!: ElementRef
   private startY = 0
@@ -69,7 +70,7 @@ export class CropSuggestionsComponent implements OnInit, AfterViewChecked {
   weatherData: any = null
   analysis = ""
   loading = false
-  error = ""
+  error: string | null = null
   userId: string | null = null
   farms: Farm[] = []
   selectedFarm: Farm | null = null
@@ -97,7 +98,11 @@ export class CropSuggestionsComponent implements OnInit, AfterViewChecked {
     "When is the best time to plant?",
   ]
 
-  customCropCount = 2 // Default to 2 crops
+  customCropCount: number = 2
+
+  searchQuery: string = ''
+  loadingStep: number = 0
+  private loadingInterval: Subscription | null = null
 
   constructor(
     private geminiService: GeminiService,
@@ -205,7 +210,7 @@ export class CropSuggestionsComponent implements OnInit, AfterViewChecked {
 
     console.log("Loading farms for user:", this.userId)
     this.loading = true
-    this.error = ""
+    this.error = null
 
     this.geminiService.getFarmData(this.userId).subscribe({
       next: (farms: Farm[]) => {
@@ -296,13 +301,13 @@ export class CropSuggestionsComponent implements OnInit, AfterViewChecked {
   }
 
   showCropCountSelection(): void {
-    this.showCropCountSelector = true
-    this.customCropCount = 2 // Default to 2 crops
+    this.showCropCountSelector = true;
+    this.customCropCount = 2;  // Set default value to 2 when opening modal
   }
 
   cancelCropCountSelection(): void {
-    this.showCropCountSelector = false
-    this.selectedCropCount = null
+    this.showCropCountSelector = false;
+    this.customCropCount = 2;  // Reset to 2 when canceling
   }
 
   selectCropCount(count: number): void {
@@ -341,8 +346,12 @@ export class CropSuggestionsComponent implements OnInit, AfterViewChecked {
     }
 
     this.loading = true
-    this.error = ""
+    this.error = null
     this.showCropCountSelector = false
+    this.loadingStep = 0
+
+    // Start loading animation
+    this.startLoadingAnimation()
 
     // Log to check what's being sent
     console.log(`Requesting suggestions for ${this.customCropCount} crops`)
@@ -356,6 +365,9 @@ export class CropSuggestionsComponent implements OnInit, AfterViewChecked {
         cropCombinations?: CropCombination[]
         error?: string
       }) => {
+        // Stop loading animation
+        this.stopLoadingAnimation()
+        
         console.log("Crop suggestions received:", response)
 
         // Check if there's an error in the response
@@ -375,7 +387,15 @@ export class CropSuggestionsComponent implements OnInit, AfterViewChecked {
         this.suggestions = response.suggestions
         this.weatherData = response.weatherData
         this.analysis = response.analysis
-        this.cropCombinations = response.cropCombinations || []
+        
+        // Ensure crop combinations are properly set
+        if (this.customCropCount > 1 && response.cropCombinations) {
+          console.log("Setting crop combinations:", response.cropCombinations)
+          this.cropCombinations = response.cropCombinations
+        } else {
+          this.cropCombinations = []
+        }
+        
         this.loading = false
         this.hasSavedSuggestions = true
         this.lastUpdated = new Date()
@@ -391,7 +411,7 @@ export class CropSuggestionsComponent implements OnInit, AfterViewChecked {
           )
         } else {
           this.addBotMessage(
-            `I've analyzed your farm data and generated ${this.customCropCount} crop suggestions for ${this.selectedFarm?.farmName}, including optimal combinations and area distribution. Ask me anything about these recommendations!`,
+            `I've analyzed your farm data and generated ${this.customCropCount} crop suggestions for ${this.selectedFarm?.farmName}, including ${this.cropCombinations.length} optimal combinations and area distribution. Ask me anything about these recommendations!`,
           )
         }
 
@@ -404,11 +424,49 @@ export class CropSuggestionsComponent implements OnInit, AfterViewChecked {
         }, 100)
       },
       error: (error: any) => {
+        // Stop loading animation
+        this.stopLoadingAnimation()
+        
         console.error("Error getting crop suggestions:", error)
         this.error = "Failed to get crop suggestions. Please try again."
         this.loading = false
       },
     })
+  }
+
+  private startLoadingAnimation(): void {
+    this.loadingStep = 0;
+    this.loadingInterval = interval(3000).subscribe(() => {
+      if (this.loadingStep < 3) {
+        this.loadingStep++;
+        // Add a message for each step
+        switch (this.loadingStep) {
+          case 1:
+            this.addBotMessage("Analyzing soil conditions and nutrient levels...");
+            break;
+          case 2:
+            this.addBotMessage("Checking weather patterns and seasonal forecasts...");
+            break;
+          case 3:
+            this.addBotMessage("Generating optimal crop combinations...");
+            break;
+        }
+      } else {
+        this.stopLoadingAnimation();
+      }
+    });
+  }
+
+  private stopLoadingAnimation(): void {
+    if (this.loadingInterval) {
+      this.loadingInterval.unsubscribe();
+      this.loadingInterval = null;
+    }
+    this.loadingStep = 0;
+  }
+
+  ngOnDestroy(): void {
+    this.stopLoadingAnimation();
   }
 
   saveSuggestions(): void {
@@ -627,62 +685,6 @@ export class CropSuggestionsComponent implements OnInit, AfterViewChecked {
       if (this.weatherData.forecast) {
         context += `Forecast: ${this.weatherData.forecast}\n`
       }
-      context += `\n`
-    }
-
-    if (this.selectedCropCount && this.selectedCropCount > 1 && this.cropCombinations.length > 0) {
-      context += `CROP COMBINATIONS:\n`
-
-      this.cropCombinations.forEach((combination, index) => {
-        context += `Combination ${index + 1} (${combination.compatibilityScore}% Compatible):\n`
-
-        combination.crops.forEach((crop) => {
-          context += `- ${crop.cropName}: ${crop.percentage}% of farm (${this.calculateArea(crop.percentage)} acres)\n`
-        })
-
-        context += `Compatibility Reasons: ${combination.compatibilityReasons.join(", ")}\n`
-        context += `Planting Sequence: ${combination.plantingSequence}\n`
-        context += `Rotation Benefits: ${combination.rotationBenefits}\n`
-
-        if (combination.additionalNotes) {
-          context += `Additional Notes: ${combination.additionalNotes}\n`
-        }
-
-        context += `\n`
-      })
-    }
-
-    if (this.suggestions.length > 0) {
-      context += `CROP SUGGESTIONS:\n`
-
-      this.suggestions.forEach((suggestion, index) => {
-        context += `Crop ${index + 1}: ${suggestion.cropName} (${suggestion.confidence}% confidence)\n`
-
-        context += `Reasons for Selection: ${suggestion.reasonsForSelection.join(", ")}\n`
-        context += `Planting Time: ${suggestion.plantingTime}\n`
-        context += `Harvest Time: ${suggestion.harvestTime}\n`
-        context += `Expected Yield: ${suggestion.expectedYield}\n`
-        context += `Water Requirements: ${suggestion.waterRequirements}\n`
-        context += `Fertilizers: ${suggestion.fertilizers.join(", ")}\n`
-        context += `Pest Management: ${suggestion.pestManagement.join(", ")}\n`
-        context += `Capital Required: ${suggestion.capitalRequired}\n`
-        context += `Time to Harvest: ${suggestion.timeToHarvest}\n`
-
-        if (suggestion.additionalNotes) {
-          context += `Additional Notes: ${suggestion.additionalNotes}\n`
-        }
-
-        context += `\n`
-      })
-    }
-
-    if (this.analysis) {
-      context += `OVERALL ANALYSIS: ${this.analysis}\n\n`
-    }
-
-    // Add information about the number of crops selected
-    if (this.selectedCropCount) {
-      context += `The farmer has chosen to grow ${this.selectedCropCount} crop${this.selectedCropCount > 1 ? "s" : ""} on their farm.\n\n`
     }
 
     return context

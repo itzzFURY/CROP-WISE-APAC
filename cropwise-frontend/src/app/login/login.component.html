@@ -1,35 +1,40 @@
 <div class="login-container">
-  <div class="login-card">
+  <div class="login-card" [@fadeInUp]>
     <div class="login-header">
-      <h1>CropWise</h1>
+      <div class="logo-container">
+        <i class="fas fa-seedling logo-icon"></i>
+        <h1>CropWise</h1>
+      </div>
       <p>Your AI-powered farming assistant</p>
     </div>
     
     <!-- Password Reset Form -->
-    <div *ngIf="showResetForm" class="reset-password-container">
-      <h2>Reset Password</h2>
-      <p>Enter your email address and we'll send you a link to reset your password.</p>
+    <div *ngIf="showResetForm" class="reset-password-container" [@fadeInOut]>
+      <h2 class="text-left"><i class="fas fa-key"></i> Reset Password</h2>
+      <p class="text-left">Enter your email address and we'll send you a link to reset your password.</p>
       
       <form [formGroup]="resetForm" (ngSubmit)="onResetSubmit()">
         <div class="form-group">
-          <label for="resetEmail">Email</label>
-          <input 
-            type="email" 
-            id="resetEmail" 
-            formControlName="email" 
-            placeholder="Enter your email"
-          >
+          <div class="input-group">
+            <i class="fas fa-envelope"></i>
+            <input 
+              type="email" 
+              formControlName="email" 
+              placeholder="Email"
+              [class.error]="resetForm.get('email')?.invalid && resetForm.get('email')?.touched"
+            />
+          </div>
           <div *ngIf="resetForm.get('email')?.invalid && resetForm.get('email')?.touched" class="error-message">
-            Please enter a valid email address
+            <i class="fas fa-exclamation-circle"></i> Please enter a valid email address
           </div>
         </div>
         
-        <div *ngIf="resetSuccess" class="success-alert">
-          Password reset email sent! Check your inbox.
+        <div *ngIf="resetSuccess" class="success-alert" [@fadeInOut]>
+          <i class="fas fa-check-circle"></i> Password reset email sent! Check your inbox.
         </div>
         
-        <div *ngIf="resetError" class="error-alert">
-          {{ errorMessage }}
+        <div *ngIf="resetError" class="error-alert" [@fadeInOut]>
+          <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
         </div>
         
         <div class="form-actions">
@@ -37,12 +42,13 @@
             type="button" 
             class="secondary-btn" 
             (click)="showResetForm = false">
-            Back to Login
+            <i class="fas fa-arrow-left"></i> Back to Login
           </button>
           <button 
             type="submit" 
             class="submit-button" 
             [disabled]="resetForm.invalid || isLoading">
+            <i class="fas" [class.fa-spinner]="isLoading" [class.fa-paper-plane]="!isLoading"></i>
             {{ isLoading ? 'Sending...' : 'Send Reset Link' }}
           </button>
         </div>
@@ -50,95 +56,107 @@
     </div>
     
     <!-- Login/Register Form -->
-    <div *ngIf="!showResetForm">
+    <div *ngIf="!showResetForm" [@fadeInOut]>
       <div class="form-toggle">
         <button 
           [class.active]="!isSignUp" 
           (click)="toggleSignUp(false)">
-          Login
+          <i class="fas fa-sign-in-alt"></i> Login
         </button>
         <button 
           [class.active]="isSignUp" 
           (click)="toggleSignUp(true)">
-          Sign Up
+          <i class="fas fa-user-plus"></i> Sign Up
         </button>
       </div>
       
       <form [formGroup]="authForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
-          <label for="email">Email</label>
-          <input 
-            type="email" 
-            id="email" 
-            formControlName="email" 
-            placeholder="Enter your email"
-          >
-          <div *ngIf="authForm.get('email')?.invalid && authForm.get('email')?.touched" class="error-message">
-            Please enter a valid email address
+          <div class="input-group">
+            <i class="fas fa-envelope"></i>
+            <input
+              type="email"
+              formControlName="email"
+              placeholder="Email"
+              [class.error]="authForm.get('email')?.invalid && authForm.get('email')?.touched"
+            />
           </div>
         </div>
         
         <!-- Username field (only for signup) -->
-        <div *ngIf="isSignUp" class="form-group">
-          <label for="username">Username</label>
-          <input 
-            type="text" 
-            id="username" 
-            formControlName="username" 
-            placeholder="Choose a username"
-          >
+        <div *ngIf="isSignUp" class="form-group" [@slideInOut]>
+          <div class="input-group">
+            <i class="fas fa-user"></i>
+            <input 
+              type="text" 
+              formControlName="username" 
+              placeholder="Choose a username"
+              [class.error]="authForm.get('username')?.invalid && authForm.get('username')?.touched"
+            />
+          </div>
           <div *ngIf="authForm.get('username')?.invalid && authForm.get('username')?.touched" class="error-message">
-            Username is required
+            <i class="fas fa-exclamation-circle"></i> Username is required
           </div>
         </div>
         
         <div class="form-group">
-          <label for="password">Password</label>
-          <input 
-            type="password" 
-            id="password" 
-            formControlName="password" 
-            placeholder="Enter your password"
-          >
-          <div *ngIf="authForm.get('password')?.invalid && authForm.get('password')?.touched" class="error-message">
-            Password must be at least 6 characters
+          <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Password"
+              [class.error]="authForm.get('password')?.invalid && authForm.get('password')?.touched"
+            />
+            <i
+              [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
+              (click)="showPassword = !showPassword"
+              class="password-toggle"
+            ></i>
           </div>
         </div>
         
-        <div *ngIf="isSignUp" class="form-group">
-          <label for="confirmPassword">Confirm Password</label>
-          <input 
-            type="password" 
-            id="confirmPassword" 
-            formControlName="confirmPassword" 
-            placeholder="Confirm your password"
-          >
-          <div *ngIf="authForm.get('confirmPassword')?.invalid && authForm.get('confirmPassword')?.touched" class="error-message">
-            Passwords must match
+        <div *ngIf="isSignUp" class="form-group" [@slideInOut]>
+          <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              placeholder="Confirm Password"
+              [class.error]="authForm.get('confirmPassword')?.invalid && authForm.get('confirmPassword')?.touched"
+            />
+            <i
+              [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
+              (click)="showConfirmPassword = !showConfirmPassword"
+              class="password-toggle"
+            ></i>
           </div>
         </div>
         
-        <div *ngIf="errorMessage" class="error-alert">
-          {{ errorMessage }}
+        <div *ngIf="errorMessage" class="error-alert" [@fadeInOut]>
+          <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
         </div>
         
         <button 
           type="submit" 
           class="submit-button" 
           [disabled]="authForm.invalid || isLoading">
+          <i class="fas" [class.fa-spinner]="isLoading" [class.fa-sign-in-alt]="!isLoading && !isSignUp" [class.fa-user-plus]="!isLoading && isSignUp"></i>
           {{ isLoading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Login') }}
         </button>
 
         <div class="social-login">
           <p>Or continue with</p>
           <button type="button" class="google-btn" (click)="signInWithGoogle()">
-            <img src="assets/image.png" alt="Google" class="google-icon">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="google-icon">
             <span>{{ isSignUp ? 'Sign up with Google' : 'Sign in with Google' }}</span>
           </button>
         </div>
         
         <div *ngIf="!isSignUp" class="forgot-password">
-          <a href="javascript:void(0)" (click)="showResetForm = true">Forgot Password?</a>
+          <a href="javascript:void(0)" (click)="showResetForm = true">
+            <i class="fas fa-question-circle"></i> Forgot Password?
+          </a>
         </div>
       </form>
     </div>

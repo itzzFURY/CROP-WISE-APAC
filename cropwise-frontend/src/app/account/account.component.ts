@@ -4,15 +4,44 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, type FormGroup, Validato
 import { NavbarComponent } from "../navbar/navbar.component"
 import { Router } from "@angular/router"
 import { AuthService } from "../auth.service"
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome'
+import { 
+  faUserCircle, 
+  faEnvelope, 
+  faUser, 
+  faUserEdit, 
+  faUserTag, 
+  faExclamationCircle, 
+  faCheckCircle, 
+  faExclamationTriangle, 
+  faSpinner, 
+  faSave, 
+  faLock, 
+  faKey 
+} from '@fortawesome/free-solid-svg-icons'
 
 @Component({
   selector: "app-account",
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, NavbarComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, NavbarComponent, FontAwesomeModule],
   templateUrl: "./account.component.html",
   styleUrls: ["./account.component.css"],
 })
 export class AccountComponent implements OnInit {
+  // Font Awesome icons
+  faUserCircle = faUserCircle;
+  faEnvelope = faEnvelope;
+  faUser = faUser;
+  faUserEdit = faUserEdit;
+  faUserTag = faUserTag;
+  faExclamationCircle = faExclamationCircle;
+  faCheckCircle = faCheckCircle;
+  faExclamationTriangle = faExclamationTriangle;
+  faSpinner = faSpinner;
+  faSave = faSave;
+  faLock = faLock;
+  faKey = faKey;
+
   usernameForm: FormGroup
   passwordForm: FormGroup
 
