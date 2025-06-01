@@ -27,8 +27,8 @@ def initialize_firebase():
         if os.getenv('GOOGLE_CLOUD_PROJECT'):
             # Running on Google Cloud - use default service account
             firebase_admin.initialize_app(options={
-                'databaseURL': os.getenv('FIREBASE_DATABASE_URL', 'https://crop-wise-2407a-default-rtdb.asia-southeast1.firebasedatabase.app'),
-                'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET', 'crop-wise-2407a.firebasestorage.app')
+                'databaseURL': os.getenv('FIREBASE_DATABASE_URL', '********'),
+                'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET', '***********')
             })
         else:
             # Local development - use service account key file
@@ -36,8 +36,8 @@ def initialize_firebase():
             if os.path.exists(firebase_key_path):
                 cred = credentials.Certificate(firebase_key_path)
                 firebase_admin.initialize_app(cred, {
-                    'databaseURL': os.getenv('FIREBASE_DATABASE_URL', 'https://crop-wise-2407a-default-rtdb.asia-southeast1.firebasedatabase.app'),
-                    'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET', 'crop-wise-2407a.firebasestorage.app')
+                    'databaseURL': os.getenv('FIREBASE_DATABASE_URL', '********'),
+                    'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET', '**********')
                 })
             else:
                 raise Exception("Firebase key file not found for local development")
