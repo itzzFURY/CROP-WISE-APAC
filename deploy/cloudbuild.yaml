@@ -1,0 +1,34 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/cropwise-backend:$COMMIT_SHA', './backend']
+  
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/cropwise-backend:$COMMIT_SHA']
+  
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+    - 'run'
+    - 'deploy'
+    - 'cropwise-backend'
+    - '--image'
+    - 'gcr.io/$PROJECT_ID/cropwise-backend:$COMMIT_SHA'
+    - '--region'
+    - 'us-central1'
+    - '--platform'
+    - 'managed'
+    - '--allow-unauthenticated'
+    - '--set-secrets'
+    - 'GEMINI_API_KEY=gemini-api-key:latest,WEATHER_API_KEY=weather-api-key:latest,FIREBASE_DATABASE_URL=firebase-database-url:latest,FIREBASE_STORAGE_BUCKET=firebase-storage-bucket:latest'
+    - '--memory'
+    - '1Gi'
+    - '--timeout'
+    - '300'
+
+images:
+  - 'gcr.io/$PROJECT_ID/cropwise-backend:$COMMIT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

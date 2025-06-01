@@ -1,0 +1,145 @@
+{
+    "title": "CropWise Secure Setup Instructions",
+    "description": "Step-by-step guide to securely deploy CropWise",
+    "steps": [
+      {
+        "step": 1,
+        "title": "Get Your API Keys",
+        "description": "Collect all required API keys",
+        "tasks": [
+          {
+            "task": "Get Gemini API Key",
+            "url": "https://makersuite.google.com/app/apikey",
+            "instructions": "Sign in with Google account and create new API key"
+          },
+          {
+            "task": "Get OpenWeatherMap API Key",
+            "url": "https://openweathermap.org/api",
+            "instructions": "Sign up for free account and get API key"
+          },
+          {
+            "task": "Get Firebase Config",
+            "url": "https://console.firebase.google.com",
+            "instructions": "Go to Project Settings and copy Database URL and Storage Bucket"
+          }
+        ]
+      },
+      {
+        "step": 2,
+        "title": "Download Firebase Service Account",
+        "description": "Download Firebase admin credentials",
+        "tasks": [
+          {
+            "task": "Generate Service Account Key",
+            "instructions": [
+              "Go to Firebase Console > Project Settings > Service Accounts",
+              "Click 'Generate new private key'",
+              "Save the JSON file as 'firebase-service-account.json'",
+              "Place it in the backend/ folder"
+            ]
+          }
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Setup Local Environment",
+        "description": "Configure local development environment",
+        "tasks": [
+          {
+            "task": "Create .env file",
+            "instructions": [
+              "Copy backend/.env.example to backend/.env",
+              "Fill in all your API keys and Firebase config",
+              "Never commit this file to git"
+            ]
+          },
+          {
+            "task": "Test Locally",
+            "commands": ["cd backend", "pip install -r requirements.txt", "python backend.py"]
+          }
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Deploy to Google Cloud",
+        "description": "Secure deployment to production",
+        "tasks": [
+          {
+            "task": "Run Deployment Script",
+            "commands": ["chmod +x deploy/deploy.sh", "./deploy/deploy.sh"],
+            "note": "Script will prompt for your API keys and handle secure storage"
+          }
+        ]
+      },
+      {
+        "step": 5,
+        "title": "Update Frontend",
+        "description": "Configure frontend to use deployed API",
+        "tasks": [
+          {
+            "task": "Update API URL",
+            "instructions": [
+              "Copy the Cloud Run URL from deployment output",
+              "Update frontend/src/app/constants.ts",
+              "Replace the placeholder URL with your actual service URL"
+            ]
+          }
+        ]
+      },
+      {
+        "step": 6,
+        "title": "Make Repository Public",
+        "description": "Safely publish your code",
+        "tasks": [
+          {
+            "task": "Verify Security",
+            "checklist": [
+              "✅ No .env files in git",
+              "✅ No firebase-service-account.json in git",
+              "✅ No hardcoded API keys in code",
+              "✅ All secrets in Google Secret Manager"
+            ]
+          },
+          {
+            "task": "Publish Repository",
+            "instructions": [
+              "Go to GitHub repository settings",
+              "Change visibility to Public",
+              "Your code is now safe to share!"
+            ]
+          }
+        ]
+      }
+    ],
+    "security_checklist": [
+      "✅ API keys stored in Google Secret Manager",
+      "✅ Environment variables used for configuration",
+      "✅ Firebase service account key not in git",
+      "✅ .env files in .gitignore",
+      "✅ No hardcoded credentials in source code",
+      "✅ CORS protection enabled",
+      "✅ Input validation implemented",
+      "✅ Health checks configured"
+    ],
+    "troubleshooting": {
+      "common_issues": [
+        {
+          "issue": "Firebase initialization error",
+          "solution": "Check that firebase-service-account.json exists and has correct permissions"
+        },
+        {
+          "issue": "API key not found error",
+          "solution": "Verify all environment variables are set in .env file"
+        },
+        {
+          "issue": "CORS error in frontend",
+          "solution": "Check that API URL in constants.ts matches your deployed service URL"
+        },
+        {
+          "issue": "Cloud Run deployment fails",
+          "solution": "Ensure all required secrets exist in Google Secret Manager"
+        }
+      ]
+    }
+  }
+  
